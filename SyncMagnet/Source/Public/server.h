@@ -4,12 +4,15 @@
 #include <fstream>
 #include <vector>
 
-#define OK_SEND_TO   "OK_SEND_TO"
-#define IMG_SEND     "IMG_SEND"
-#define OK_SEND      "OK_SEND"
-#define ACCEPT       "ACCEPT"
-#define DECLINE      "DECLINE"
-#define DEVICE_NAME  "DEVICE_NAME"
+#define OK_SEND_TO      "OK_SEND_TO"
+#define IMG_SEND        "IMG_SEND"
+#define OK_SEND         "OK_SEND"
+#define ACCEPT          "ACCEPT"
+#define DECLINE         "DECLINE"
+#define DEVICE_NAME     "DEVICE_NAME"
+#define FILE_BYTE       "FILE_BYTE"
+#define FILE_BYTE_TO    "FILE_BYTE_TO"
+#define FILE_CHUNK_SIZE 1024
 
 using namespace std;
 
@@ -18,7 +21,7 @@ static int _LENGTH = 0;
 class Server {
 	public:
 		Server();
-	
+
 		void Setup(const char*& ip, const char*& port);
 		void Start();
 		void Stop();
