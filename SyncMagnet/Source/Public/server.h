@@ -27,7 +27,7 @@ class Server {
 		bool SaveImageData(const int& bufferSize, bool isImagePathToDesktop = false);
 		void CreateSaveImagePathFolder(const wchar_t* pathFolder);
 		void HandleFileTransfer(char* buffer, int& bufferSize);
-		std::string GetClientDeviceName(char* buffer, int& buffSize);
+		string GetClientDeviceName(char* buffer, int& buffSize);
 		void SendClientFile(string& inputFolder, char* buffer, const int& bufferSize);
 		vector<string> MessageParse(string message, int& msgLen = _LENGTH, const char seperator = '|');
 	
