@@ -4,36 +4,38 @@
 #include <fstream>
 #include <vector>
 
-static int LENGTH = 0;
-constexpr const char* OK_SEND_TO     = "OK_SEND_TO";
-constexpr const char* IMG_SEND       = "IMG_SEND";
-constexpr const char* OK_SEND        = "OK_SEND";
-constexpr const char* ACCEPT         = "ACCEPT";
-constexpr const char* DECLINE        = "DECLINE";
-constexpr const char* FILE_NAME      = "FILE_NAME";
-constexpr const char* FILE_NAME_SEND = "FILE_NAME_SEND";
+#define OK_SEND_TO   "OK_SEND_TO"
+#define IMG_SEND     "IMG_SEND"
+#define OK_SEND      "OK_SEND"
+#define ACCEPT       "ACCEPT"
+#define DECLINE      "DECLINE"
+#define DEVICE_NAME  "DEVICE_NAME"
+
+using namespace std;
+
+static int _LENGTH = 0;
 
 class Server {
 	public:
 		Server();
-		~Server();
-		
-		void Setup(const char* &ip, const char* &port);
+	
+		void Setup(const char*& ip, const char*& port);
 		void Start();
 		void Stop();
-		
+
 	private:
-		bool SaveImageData(const int &bufferSize, bool isImagePathToDesktop = false);
-		void CreateSaveImagePathFolder(const wchar_t *pathFolder);
-		void HandleFileTransfer(char *buffer, int& bufferSize);
-		void SendClientFile(std::string &inputFolder, char* buffer, const int& bufferSize);
-		std::vector<std::string> MessageParse(std::string message, int&  msgLen = LENGTH, const char separator = '|');
-		
+		bool SaveImageData(const int& bufferSize, bool isImagePathToDesktop = false);
+		void CreateSaveImagePathFolder(const wchar_t* pathFolder);
+		void HandleFileTransfer(char* buffer, int& bufferSize);
+		std::string GetClientDeviceName(char* buffer, int& buffSize);
+		void SendClientFile(string& inputFolder, char* buffer, const int& bufferSize);
+		vector<string> MessageParse(string message, int& msgLen = _LENGTH, const char seperator = '|');
+	
 		const char* ip;
 		const char* port;
 		bool isRun;
-		
-		std::string PcUserName;
+		bool isLoad = true;
+		string PcUserName;
 		SOCKET ServerSocket{};
 		SOCKET ClientSocket{};
 		sockaddr_in ServerAddr{};
