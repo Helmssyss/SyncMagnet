@@ -16,23 +16,50 @@ namespace console {
     constexpr const char* BANNER = "-*-SyncMagnet-*-\n";
 
     void Header() {
-        printf("%s%s\n%s", console::PURPLE, console::BANNER, console::DEFAULT);
-        printf("%s[0] %sGet File \t\t%s[1] %sSent File%s\n", console::RED, console::CYAN, console::RED, console::CYAN, console::DEFAULT);
-        printf("%s[2] %sGet Screen Share%s\n", console::RED, console::CYAN, console::DEFAULT);
-        printf("%s[x] %sClose%s\n", console::RED, console::CYAN, console::DEFAULT);
-        printf("%s[?] %sTo be continued%s\n", console::RED, console::PURPLE, console::DEFAULT);
+        printf("%s%s\n%s", PURPLE, BANNER, DEFAULT);
+        printf("%s[0] %sGet File \t\t%s[1] %sSent File%s\n", RED, CYAN, RED, CYAN, DEFAULT);
+        printf("%s[2] %sGet Screen Share%s\n", RED, CYAN, DEFAULT);
+        printf("%s[x] %sClose%s\n", RED, CYAN, DEFAULT);
+        printf("%s[?] %sTo be continued%s\n", RED, PURPLE, DEFAULT);
     }
 
     void Body(char chr[]) {
-        printf("\n%s[~] %sConnection Started\n", console::RED, console::PURPLE);
-        printf("%s[~] %sConnect From Your Address %s[%s]%s\n", console::RED, console::PURPLE, console::YELLOW, chr, console::DEFAULT);
-        printf("%s[~] %sWaiting For Connection%s\n", console::RED, console::YELLOW, console::DEFAULT);
+        printf("\n%s[~] %sConnection Started\n", RED, PURPLE);
+        printf("%s[~] %sConnect From Your Address %s[%s]%s\n", RED, PURPLE, YELLOW, chr, DEFAULT);
+        printf("%s[~] %sWaiting For Connection%s\n", RED, PURPLE, DEFAULT);
     }
 
     std::string Input() {
         std::string input;
-        printf("%s[*] %shelmsys@sync_magnet:~$ %s", console::RED, console::PURPLE, console::YELLOW);
+        printf("%s[*] %shelmsys@sync_magnet:~$ %s", RED, PURPLE, YELLOW);
         std::getline(std::cin, input);
         return input;
     }
+
+    void GetFileAlertMessage(const char* fileName, int fileSize) {
+        printf("%s[!] %sFile Name: %s%s\n%s[!] %sFile Size: %s%.2f %s%s\n",
+            RED, PURPLE, YELLOW, fileName, RED, PURPLE, YELLOW, (float)fileSize / (1024 * 1024),
+            (fileSize / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT
+        );
+    }
+
+    void SaveFileQuestionDisplay() {
+        printf("%s[~] %sSave File [%sy%s/%sn%s]%s\n", RED, PURPLE, YELLOW, PURPLE, YELLOW, PURPLE, DEFAULT);
+    }
+    void UploadFileDisplay(const int &uploadByte,const long &fileSize) {
+        printf("\r%s[~] %s%.3f/%.3f %s%s Uploading%s",
+            RED, YELLOW, (float)uploadByte / (1024 * 1024),
+            (float)fileSize / (1024 * 1024), PURPLE,
+            (uploadByte / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT
+        );
+    }
+
+    void CompleteUploadFileDisplay(const long &fileSize) {
+        printf("\r%s[*] %s%.3f %s%s File Sent Upload%s\n",
+            RED, YELLOW, (float)fileSize / (1024 * 1024), PURPLE,
+            (fileSize / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT
+        );
+    }
+
+    inline void AlertMessage(const char* msg) {printf("%s[~] %s%s%s\n", RED, PURPLE, msg, DEFAULT);}
 }
