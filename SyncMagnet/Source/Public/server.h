@@ -25,16 +25,17 @@ class Server {
 
 		void Setup();
 		void Start();
-		void Stop();
+		void Stop() const;
 
 	private:
-		void CreateSaveImagePathFolder(const wchar_t* pathFolder);
+		void CreateSaveImagePathFolder() const;
 		void HandleFileTransfer(char* buffer, int& bufferSize);
 		void SendClientFile(string& inputFolder, char* buffer, const int& bufferSize);
-		void SaveImageData(const int& bufferSize, const char* fileName, bool isImagePathToDesktop = false);
+		void SaveImageData(const int& bufferSize, const char* fileName);
+		bool FolderExists(const wchar_t* folderPath) const;
 		vector<string> MessageParse(string message, int& msgLen = _LENGTH, const char seperator = '|');
 		string GetClientDeviceName(char* buffer, int& buffSize);
-		string GetIPv4();
+		string GetIPv4() const;
 
 		string PcUserName;
 		SOCKET ServerSocket{};
