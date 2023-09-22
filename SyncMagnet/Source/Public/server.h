@@ -13,7 +13,7 @@
 #define FILE_BYTE        "FILE_BYTE"
 #define FILE_BYTE_TO     "FILE_BYTE_TO"
 #define DISCONNECT       "DISCONNECT"
-#define FILE_CHUNK_SIZE  3072
+#define FILE_CHUNK_SIZE  1024
 
 using namespace std;
 
@@ -28,14 +28,14 @@ class Server {
 		void Stop() const;
 
 	private:
-		void CreateSaveImagePathFolder() const;
+		void CreateSaveFilePathFolder() const;
 		void HandleFileTransfer(char* buffer, int& bufferSize);
 		void SendClientFile(string& inputFolder, char* buffer, const int& bufferSize);
-		void SaveImageData(const int& bufferSize, const char* fileName);
+		void SaveFileData(const int& bufferSize, const char* fileName);
 		bool FolderExists(const wchar_t* folderPath) const;
 		vector<string> MessageParse(string message, int& msgLen = _LENGTH, const char seperator = '|');
 		string GetClientDeviceName(char* buffer, int& buffSize);
-		string GetIPv4() const;
+		string GetIPv4() const ;
 
 		string PcUserName;
 		SOCKET ServerSocket{};
