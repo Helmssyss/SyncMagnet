@@ -109,7 +109,7 @@ std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
 void Server::SendClientFile(std::string& inputFolder, char* buffer, const int& bufferSize) {
     std::ifstream file(inputFolder, std::ios::binary);
     file.seekg(0, std::ios::end);
-    const long fileSize = file.tellg();
+    const unsigned long fileSize = file.tellg();
     file.close();
 
     send(ClientSocket, OK_SEND_TO, strlen(OK_SEND_TO), 0);
