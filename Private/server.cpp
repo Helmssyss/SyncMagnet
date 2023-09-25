@@ -31,13 +31,6 @@ Server::Server() {
     console::Header();
 }
 
-Server::~Server() {
-    closesocket(ClientSocket);
-    closesocket(ServerSocket);
-    WSACleanup();
-}
-
-
 void Server::Setup() {
     const int port = 1881;
     const std::string ip = GetIPv4();
@@ -119,19 +112,23 @@ std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
 }
 
 void Server::SendClientFile(std::string& inputFile, char* buffer, const int& bufferSize) {
+    const int fileChunkSize = 1024;
     std::ifstream file(inputFile, std::ios::binary);
     file.seekg(0, std::ios::end);
     const unsigned long fileSize = file.tellg();
     file.close();
 
-    int counter;
+
+    
+    int counter = 0;
     std::vector<std::string> str = MessageParse(inputFile, counter, '\\');
     std::string fileNameSize;
     const std::string seperator = "|:FILE:|";
     fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize) + seperator);
     send(ClientSocket, fileNameSize.c_str(), fileNameSize.length(), 0);
+    Sleep(10);
     send(ClientSocket, OK_SEND_TO, strlen(OK_SEND_TO), 0);
-
+    
     bool run = true;
     while (run) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
@@ -148,8 +145,8 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
             int bytesSent = 0;
             int bytesToSend = 0;
             while (bytesSent < fileSize) {
-                if (fileSize - bytesSent >= FILE_CHUNK_SIZE)
-                    bytesToSend = FILE_CHUNK_SIZE;
+                if (fileSize - bytesSent >= fileChunkSize)
+                    bytesToSend = fileChunkSize;
                 else
                     bytesToSend = fileSize - bytesSent;
 
