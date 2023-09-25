@@ -1,4 +1,4 @@
-﻿#include <WinSock2.h>
+#include <WinSock2.h>
 #include <ws2tcpip.h>
 
 #include <iostream>
@@ -15,6 +15,7 @@
 
 Server::Server() {
     setlocale(LC_ALL, "Turkish");
+    WSADATA wsaData;
     TCHAR getName[MAX_COMPUTERNAME_LENGTH + 1];
     DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
 
@@ -22,21 +23,24 @@ Server::Server() {
         std::string userName(getName, getName + size - 1);
         PcUserName = userName;
     }
-    else {
-        std::cerr << "GetUserName işlemi başarısız oldu." << std::endl;
-    }
 
-    WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         printf("Hay Aksi!");
     }
+
     console::Header();
+}
+
+Server::~Server() {
+    closesocket(ClientSocket);
+    closesocket(ServerSocket);
+    WSACleanup();
 }
 
 
 void Server::Setup() {
     const int port = 1881;
-    std::string ip = GetIPv4();
+    const std::string ip = GetIPv4();
 
     ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -71,17 +75,25 @@ void Server::Start() {
             CreateSaveFilePathFolder();
             HandleFileTransfer(buffer, bufferSize);
 
-        }
-        else if (input == "1") {
+        }else if (input == "1") {
             console::AlertMessage("Write File Path");
-            std::string input_folder = console::Input();
-            SendClientFile(input_folder, buffer, bufferSize);
+            bool fileIsExists = false;
+            while (!fileIsExists) {
+                std::string input_file = console::Input();
+                const std::wstring wInputFilePath(input_file.begin(), input_file.end());
+                const wchar_t* wInputFile = wInputFilePath.c_str();
+                if (FileExists(wInputFile)) {
+                    SendClientFile(input_file, buffer, bufferSize);
+                    fileIsExists = true;
+                }else {
+                    console::AlertMessage("Not Valid File Path");
+                }
+            }
 
-        }
-        else if (input == "2") {
+        }else if (input == "2") {
             Screen::CreateScreen();
-        }
-        else if (input == "x") {
+
+        }else if (input == "x") {
             isRun = false;
             console::QuitMessage();
             Sleep(1000);
@@ -106,26 +118,29 @@ std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
     return resultData;
 }
 
-void Server::SendClientFile(std::string& inputFolder, char* buffer, const int& bufferSize) {
-    std::ifstream file(inputFolder, std::ios::binary);
+void Server::SendClientFile(std::string& inputFile, char* buffer, const int& bufferSize) {
+    std::ifstream file(inputFile, std::ios::binary);
     file.seekg(0, std::ios::end);
     const unsigned long fileSize = file.tellg();
     file.close();
 
-    send(ClientSocket, OK_SEND_TO, strlen(OK_SEND_TO), 0);
     int counter;
-    std::vector<std::string> str = MessageParse(inputFolder, counter, '\\');
+    std::vector<std::string> str = MessageParse(inputFile, counter, '\\');
+    std::string fileNameSize;
+    const std::string seperator = "|:FILE:|";
+    fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize) + seperator);
+    send(ClientSocket, fileNameSize.c_str(), fileNameSize.length(), 0);
+    send(ClientSocket, OK_SEND_TO, strlen(OK_SEND_TO), 0);
 
     bool run = true;
     while (run) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
         buffer[bytesReceived] = '\0';
 
-        if (strcmp(buffer, IMG_SEND) == 0) {
+        if (strcmp(buffer, FILE_SEND) == 0) {
             memset(buffer, 0, sizeof(buffer));
-
             char* fileBuffer = new char[fileSize];
-            file.open(inputFolder, std::ios::binary);
+            file.open(inputFile, std::ios::binary);
             file.seekg(0, ios::beg);
             file.read(fileBuffer, fileSize);
             file.close();
@@ -147,12 +162,8 @@ void Server::SendClientFile(std::string& inputFolder, char* buffer, const int& b
             delete[] fileBuffer;
         }
     }
-
-    std::string fileNameSize;
-    const std::string seperator = "|:FILE:|";
-    fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize));
-    send(ClientSocket, fileNameSize.c_str(), fileNameSize.length(), 0);
     console::CompleteUploadFileDisplay(fileSize);
+    send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
 }
 
 void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
@@ -162,7 +173,7 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
 
         buffer[bytesReceived] = '\0';
-        if (strcmp(buffer, IMG_SEND) == 0) {
+        if (strcmp(buffer, FILE_SEND) == 0) {
             memset(buffer, 0, sizeof(buffer));
             send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
             recv(ClientSocket, buffer, bufferSize, 0);
@@ -208,7 +219,6 @@ void Server::SaveFileData(const int& bufferSize, const char* fileName) {
     }
     file.close();
     delete[] dynamicBuffer;
-
 }
 
 std::vector<std::string> Server::MessageParse(std::string message, int& msgLen, const char seperator) {
@@ -262,6 +272,11 @@ std::string Server::GetIPv4() const{
 bool Server::FolderExists(const wchar_t* folderPath) const {
     DWORD attributes = GetFileAttributesW(folderPath);
     return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool Server::FileExists(const wchar_t* filePath) const {
+    DWORD attributes = GetFileAttributesW(filePath);
+    return (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 void Server::CreateSaveFilePathFolder() const {
