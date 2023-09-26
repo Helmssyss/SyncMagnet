@@ -1,4 +1,4 @@
-#include <WinSock2.h>
+﻿#include <WinSock2.h>
 #include <ws2tcpip.h>
 
 #include <iostream>
@@ -9,7 +9,6 @@
 
 #include "../Public/server.h"
 #include "../Public/console.h"
-#include "../Public/client_screen.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -83,10 +82,7 @@ void Server::Start() {
                 }
             }
 
-        }else if (input == "2") {
-            Screen::CreateScreen();
-
-        }else if (input == "x") {
+        }else if (input == "x" || input == "X") {
             isRun = false;
             console::QuitMessage();
             Sleep(1000);
@@ -118,8 +114,6 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     const unsigned long fileSize = file.tellg();
     file.close();
 
-
-    
     int counter = 0;
     std::vector<std::string> str = MessageParse(inputFile, counter, '\\');
     std::string fileNameSize;
@@ -127,7 +121,7 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize) + seperator);
     send(ClientSocket, fileNameSize.c_str(), fileNameSize.length(), 0);
     Sleep(10);
-    send(ClientSocket, OK_SEND_TO, strlen(OK_SEND_TO), 0);
+    send(ClientSocket, FILE_CAME, strlen(FILE_CAME), 0);
     
     bool run = true;
     while (run) {
@@ -160,6 +154,7 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
         }
     }
     console::CompleteUploadFileDisplay(fileSize);
+    Sleep(10);
     send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
 }
 
@@ -178,18 +173,21 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
             bufferSize = std::stoi(MessageParse(buffer)[0]);
             console::GetFileAlertMessage(MessageParse(buffer)[1].c_str(), bufferSize);
             console::SaveFileQuestionDisplay();
-            std::string input = console::Input();
-
-            if (input == "y" || input == "Y") {
-                send(ClientSocket, ACCEPT, strlen(ACCEPT), 0);
-                SaveFileData(bufferSize, MessageParse(buffer)[1].c_str());
-                printf("Kaydedildi\n");
-                run = false;
-            }
-            else if (input == "n" || input == "N") {
-                send(ClientSocket, DECLINE, strlen(DECLINE), 0);
-                printf("Vazgeçildi\n");
-                run = false;
+            bool isAccepted = false;
+            while (!isAccepted){
+                std::string input = console::Input();
+                if (input == "y" || input == "Y") {
+                    send(ClientSocket, ACCEPT, strlen(ACCEPT), 0);
+                    SaveFileData(bufferSize, MessageParse(buffer)[1].c_str());
+                    console::AlertMessage("Saved\a");
+                    run = false;
+                    isAccepted = true;
+                }
+                else if (input == "n" || input == "N") {
+                    send(ClientSocket, DECLINE, strlen(DECLINE), 0);
+                    console::AlertMessage("Ignored");
+                    run = false;
+                }
             }
         }
     }

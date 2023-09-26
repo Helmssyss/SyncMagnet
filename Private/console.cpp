@@ -30,14 +30,14 @@ std::string console::Input() {
 }
 
 void console::GetFileAlertMessage(const char* fileName, int fileSize) {
-    printf("%s[!] %sFile Name: %s%s\n%s[!] %sFile Size: %s%.2f %s%s\n",
+    printf("%s[!] %sFile Name: %s%s\n%s[!] %sFile Size: %s%f %s%s\n",
         RED, PURPLE, YELLOW, fileName, RED, PURPLE, YELLOW, (float)fileSize / (1024 * 1024),
         (fileSize / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT
     );
 }
 
 void console::UploadFileDisplay(const int& uploadByte, const long& fileSize) {
-    printf("\r%s[~] %s%.2f/%.2f %s%s Uploading%s",
+    printf("\r%s[~] %s%f/%f %s%s Uploading%s",
         RED, YELLOW, (float)uploadByte / (1024 * 1024),
         (float)fileSize / (1024 * 1024), PURPLE,
         (uploadByte / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT
@@ -45,14 +45,14 @@ void console::UploadFileDisplay(const int& uploadByte, const long& fileSize) {
 }
 
 void console::CompleteUploadFileDisplay(const long& fileSize) {
-    printf("\r%s[*] %s%.2f %s%s File Sent Upload%s\n",
+    printf("\r%s[*] %s%f %s%s File Sent Upload%s\n\a",
         RED, YELLOW, (float)fileSize / (1024 * 1024), PURPLE,
         (fileSize / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT
     );
 }
 
 void console::DownloadFileDisplay(const int& downloadByte, const long& fileSize) {
-    printf("\r%s[~] %s%.2f/%.2f %s%s Downloading File%s", RED, YELLOW,
+    printf("\r%s[~] %s%f/%f %s%s Downloading File%s", RED, YELLOW,
         (float)downloadByte / (1024 * 1024), (float)fileSize / (1024 * 1024),
         PURPLE, (fileSize / (1024 * 1024)) >= 1 ? "MB" : "KB", DEFAULT);
 }

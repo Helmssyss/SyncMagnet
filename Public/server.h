@@ -4,7 +4,7 @@
 #include <fstream>
 #include <vector>
 
-#define OK_SEND_TO       "OK_SEND_TO"
+#define FILE_CAME       "FILE_CAME"
 #define OK_SEND          "OK_SEND"
 #define ACCEPT           "ACCEPT"
 #define DECLINE          "DECLINE"

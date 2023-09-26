@@ -21,7 +21,7 @@
     <ClCompile Include="Private\server.cpp">
       <Filter>Kaynak Dosyaları</Filter>
     </ClCompile>
-    <ClCompile Include="Private\test.cpp">
+    <ClCompile Include="Private\console.cpp">
       <Filter>Kaynak Dosyaları</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,9 +30,6 @@
       <Filter>Üst Bilgi Dosyaları</Filter>
     </ClInclude>
     <ClInclude Include="Public\console.h">
-      <Filter>Üst Bilgi Dosyaları</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\client_screen.h">
       <Filter>Üst Bilgi Dosyaları</Filter>
     </ClInclude>
   </ItemGroup>

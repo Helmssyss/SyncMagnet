@@ -17,7 +17,7 @@ namespace console {
     constexpr const char* DEFAULT = "\033[0m";
     constexpr const char* BANNER = "-*-SyncMagnet-*-\n";
 
-    inline void SaveFileQuestionDisplay() { printf("%s[~] %sSave File [%sy%s/%sn%s]%s\n", RED, PURPLE, YELLOW, PURPLE, YELLOW, PURPLE, DEFAULT); }
+    inline void SaveFileQuestionDisplay() { printf("%s[~] %sSave File [%sy-Y%s/%sn-N%s]%s\n", RED, PURPLE, YELLOW, PURPLE, YELLOW, PURPLE, DEFAULT); }
     inline void AlertMessage(const char* msg) { printf("\n%s[~] %s%s%s\n", RED, PURPLE, msg, DEFAULT); }
 
     void Banner();

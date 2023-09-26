@@ -130,11 +130,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Private\console.cpp" />
     <ClCompile Include="Private\server.cpp" />
-    <ClCompile Include="Private\test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Public\client_screen.h" />
     <ClInclude Include="Public\console.h" />
     <ClInclude Include="Public\server.h" />
   </ItemGroup>
