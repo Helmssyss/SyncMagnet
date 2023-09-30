@@ -108,7 +108,7 @@ std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
 }
 
 void Server::SendClientFile(std::string& inputFile, char* buffer, const int& bufferSize) {
-    const int fileChunkSize = 1024;
+    const int fileChunkSize = 4096;
     std::ifstream file(inputFile, std::ios::binary);
     file.seekg(0, std::ios::end);
     const unsigned long fileSize = file.tellg();
@@ -124,33 +124,52 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     send(ClientSocket, FILE_CAME, strlen(FILE_CAME), 0);
     
     bool run = true;
+    bool err = false;
     while (run) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
         buffer[bytesReceived] = '\0';
 
         if (strcmp(buffer, FILE_SEND) == 0) {
             memset(buffer, 0, sizeof(buffer));
-            char* fileBuffer = new char[fileSize];
+            
             file.open(inputFile, std::ios::binary);
-            file.seekg(0, ios::beg);
-            file.read(fileBuffer, fileSize);
-            file.close();
-
+            file.seekg(0, std::ios::beg);
             int bytesSent = 0;
             int bytesToSend = 0;
+            char* fileBuffer = new char[fileChunkSize];
+            
             while (bytesSent < fileSize) {
-                if (fileSize - bytesSent >= fileChunkSize)
-                    bytesToSend = fileChunkSize;
-                else
-                    bytesToSend = fileSize - bytesSent;
+                int ping = recv(ClientSocket, buffer, bufferSize, 0);
+                buffer[ping] = '\0';
+                if (strcmp(buffer, PING) == 0) {
+                    memset(buffer, 0, sizeof(buffer));
+                    if (fileSize - bytesSent >= fileChunkSize)
+                        bytesToSend = fileChunkSize;
+                    else
+                        bytesToSend = fileSize - bytesSent;
 
-                const std::string sendFile = std::string(fileBuffer + bytesSent, bytesToSend);
-                send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
-                bytesSent += bytesToSend;
-                console::UploadFileDisplay(bytesSent, fileSize);
+                    file.read(fileBuffer, bytesToSend);
+                    const std::string sendFile = std::string(fileBuffer, bytesToSend);
+                    send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
+                    bytesSent += bytesToSend;
+                    console::UploadFileDisplay(bytesSent, fileSize);
+                }else {
+                    err = true;
+                    break;
+                }
             }
             run = false;
+            file.close();
             delete[] fileBuffer;
+            if (err) {
+                console::ErrorDisplay("Connection Lost");
+                Sleep(3000);
+                console::QuitMessage();
+                Sleep(1000);
+                Stop();
+                console::Input();
+                exit(EXIT_SUCCESS);
+            }
         }
     }
     console::CompleteUploadFileDisplay(fileSize);
