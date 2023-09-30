@@ -137,10 +137,10 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
             int bytesSent = 0;
             int bytesToSend = 0;
             char* fileBuffer = new char[fileChunkSize];
-            
+
             while (bytesSent < fileSize) {
                 int ping = recv(ClientSocket, buffer, bufferSize, 0);
-                buffer[ping] = '\0';
+                buffer[4] = '\0';
                 if (strcmp(buffer, PING) == 0) {
                     memset(buffer, 0, sizeof(buffer));
                     if (fileSize - bytesSent >= fileChunkSize)
@@ -161,6 +161,7 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
             run = false;
             file.close();
             delete[] fileBuffer;
+
             if (err) {
                 console::ErrorDisplay("Connection Lost");
                 Sleep(3000);
