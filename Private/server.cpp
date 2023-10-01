@@ -1,4 +1,4 @@
-﻿#include <WinSock2.h>
+#include <WinSock2.h>
 #include <ws2tcpip.h>
 
 #include <iostream>
@@ -86,8 +86,9 @@ void Server::Start() {
             isRun = false;
             console::QuitMessage();
             Sleep(1000);
-            console::Input();
+            send(ClientSocket, DISCONNECT, strlen(DISCONNECT), 0);
             Stop();
+            console::Input();
             exit(EXIT_SUCCESS);
         }
     }
@@ -124,7 +125,6 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     send(ClientSocket, FILE_CAME, strlen(FILE_CAME), 0);
     
     bool run = true;
-    bool err = false;
     while (run) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
         buffer[bytesReceived] = '\0';
@@ -139,38 +139,19 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
             char* fileBuffer = new char[fileChunkSize];
 
             while (bytesSent < fileSize) {
-                int ping = recv(ClientSocket, buffer, bufferSize, 0);
-                buffer[4] = '\0';
-                if (strcmp(buffer, PING) == 0) {
-                    memset(buffer, 0, sizeof(buffer));
-                    if (fileSize - bytesSent >= fileChunkSize)
-                        bytesToSend = fileChunkSize;
-                    else
-                        bytesToSend = fileSize - bytesSent;
-
-                    file.read(fileBuffer, bytesToSend);
-                    const std::string sendFile = std::string(fileBuffer, bytesToSend);
-                    send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
-                    bytesSent += bytesToSend;
-                    console::UploadFileDisplay(bytesSent, fileSize);
-                }else {
-                    err = true;
-                    break;
-                }
+                if (fileSize - bytesSent >= fileChunkSize)
+                    bytesToSend = fileChunkSize;
+                else
+                    bytesToSend = fileSize - bytesSent;
+                file.read(fileBuffer, bytesToSend);
+                const std::string sendFile = std::string(fileBuffer, bytesToSend);
+                send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
+                bytesSent += bytesToSend;
+                console::UploadFileDisplay(bytesSent, fileSize);
             }
             run = false;
             file.close();
             delete[] fileBuffer;
-
-            if (err) {
-                console::ErrorDisplay("Connection Lost");
-                Sleep(3000);
-                console::QuitMessage();
-                Sleep(1000);
-                Stop();
-                console::Input();
-                exit(EXIT_SUCCESS);
-            }
         }
     }
     console::CompleteUploadFileDisplay(fileSize);
@@ -185,6 +166,7 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
 
         buffer[bytesReceived] = '\0';
+        //std::cout << buffer << std::endl;
         if (strcmp(buffer, FILE_SEND) == 0) {
             memset(buffer, 0, sizeof(buffer));
             send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
