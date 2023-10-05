@@ -10,3 +10,5 @@
 </div>
 
 Very soon...
+
+[CHANGELOG](https://github.com/Helmssyss/SyncMagnet/blob/main/CHANGELOG.md)
