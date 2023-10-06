@@ -10,7 +10,7 @@ Resources are not used that much anymore
 ### Bug fix
  - Interface improvement
  - Connection problems fixed
- - 
+
 ## (Andorid) v0.0.3 - 30.09.2023
 ### New features
  - Theme changing (light/dark) added
