@@ -28,8 +28,6 @@ Server::Server() {
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         printf("Hay Aksi!");
     }
-
-    console::Header();
 }
 
 void Server::Setup() {
@@ -44,8 +42,8 @@ void Server::Setup() {
 
     bind(ServerSocket, (sockaddr*)&ServerAddr, sizeof(ServerAddr));
     listen(ServerSocket, 1);
-
-    console::Body(ip);
+    console::Header(ip);
+    console::Body();
 }
 
 void Server::Start() {
