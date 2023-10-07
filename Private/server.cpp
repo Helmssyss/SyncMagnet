@@ -1,4 +1,4 @@
-#include <WinSock2.h>
+﻿#include <WinSock2.h>
 #include <ws2tcpip.h>
 
 #include <iostream>
@@ -6,6 +6,8 @@
 #include <locale>
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <map>
 
 #include "../Public/server.h"
 #include "../Public/console.h"
@@ -43,8 +45,6 @@ void Server::Setup() {
     bind(ServerSocket, (sockaddr*)&ServerAddr, sizeof(ServerAddr));
     listen(ServerSocket, 1);
 
-    //char getIPv4[INET_ADDRSTRLEN];
-    //inet_ntop(AF_INET, &(ServerAddr.sin_addr), getIPv4, INET_ADDRSTRLEN);
     console::Body(ip);
 }
 
@@ -69,6 +69,7 @@ void Server::Start() {
 
         }else if (input == "1") {
             console::AlertMessage("Write File Path");
+            console::AlertMessage("Cancel [n/N]");
             bool fileIsExists = false;
             while (!fileIsExists) {
                 std::string input_file = console::Input();
@@ -77,9 +78,13 @@ void Server::Start() {
                 if (FileExists(wInputFile)) {
                     SendClientFile(input_file, buffer, bufferSize);
                     fileIsExists = true;
-                }else {
+                
+                }else if (input_file == "n" || input_file == "N") {
+                    console::AlertMessage("Canceled");
+                    break;
+
+                }else
                     console::AlertMessage("Not Valid File Path");
-                }
             }
 
         }else if (input == "x" || input == "X") {
@@ -97,8 +102,8 @@ void Server::Start() {
 std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
     send(ClientSocket, DEVICE_NAME, strlen(DEVICE_NAME), 0);
     const int8_t recvData = recv(ClientSocket, buffer, buffSize, 0);
-    const std::string deviceName = MessageParse(buffer)[1];
-    const int8_t deviceNameLength = std::stoi(MessageParse(buffer)[0]);
+    const std::string deviceName = FileMessageParse(buffer)[1];
+    const int8_t deviceNameLength = std::stoi(FileMessageParse(buffer)[0]);
     std::string resultData;
 
     for (int8_t i = 0; i < deviceNameLength; i++) {
@@ -116,7 +121,7 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     file.close();
 
     int counter = 0;
-    std::vector<std::string> str = MessageParse(inputFile, counter, '\\');
+    std::vector<std::string> str = FileMessageParse(inputFile, counter, '\\');
     std::string fileNameSize;
     const std::string seperator = "|:FILE:|";
     fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize) + seperator);
@@ -130,8 +135,6 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
         buffer[bytesReceived] = '\0';
 
         if (strcmp(buffer, FILE_SEND) == 0) {
-            memset(buffer, 0, sizeof(buffer));
-            
             file.open(inputFile, std::ios::binary);
             file.seekg(0, std::ios::beg);
             int bytesSent = 0;
@@ -157,68 +160,99 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     console::CompleteUploadFileDisplay(fileSize);
     Sleep(10);
     send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
+    memset(buffer, 0, sizeof(buffer));
 }
 
-void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
-    printf("%s[~] %sWaiting the File%s\n", console::RED, console::PURPLE, console::DEFAULT);
-    bool run = true;
-    while (run) {
-        int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
+void Server::HandleFileProcess(char* &buffer, int &bufferSize, bool saveMultipleFile) {
+    bool isAccepted = false;
 
-        buffer[bytesReceived] = '\0';
-        //std::cout << buffer << std::endl;
-        if (strcmp(buffer, FILE_SEND) == 0) {
-            memset(buffer, 0, sizeof(buffer));
-            send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
-            recv(ClientSocket, buffer, bufferSize, 0);
+    while (!isAccepted) {
+        std::string input = console::Input();
+        if (!saveMultipleFile) {
+            if (input == "y" || input == "Y") {
+                send(ClientSocket, SINGLE, strlen(SINGLE), 0);
+                SaveFileData(bufferSize, FileMessageParse(buffer)[1].c_str());
+                console::AlertMessage("Saved\a");
+                isAccepted = true;
+            }else if(input == "n" || input == "N"){
+                send(ClientSocket, DECLINE, strlen(DECLINE), 0);
+                console::AlertMessage("Ignored");
+                isAccepted = true;
+            }
 
-            bufferSize = std::stoi(MessageParse(buffer)[0]);
-            console::GetFileAlertMessage(MessageParse(buffer)[1].c_str(), bufferSize);
-            console::SaveFileQuestionDisplay();
-            bool isAccepted = false;
-            while (!isAccepted){
-                std::string input = console::Input();
-                if (input == "y" || input == "Y") {
-                    send(ClientSocket, ACCEPT, strlen(ACCEPT), 0);
-                    SaveFileData(bufferSize, MessageParse(buffer)[1].c_str());
-                    console::AlertMessage("Saved\a");
-                    run = false;
-                    isAccepted = true;
-                }
-                else if (input == "n" || input == "N") {
-                    send(ClientSocket, DECLINE, strlen(DECLINE), 0);
-                    console::AlertMessage("Ignored");
-                    run = false;
-                }
+        }else {
+            if (input == "y" || input == "Y") {
+                send(ClientSocket, NEXT, strlen(NEXT), 0);
+                std::vector<std::pair<std::string, std::string>> resultMap = MultipleFileMessageParse(buffer);
+                for (const auto& pair : resultMap)
+                    SaveFileData(std::stoi(pair.first), pair.second.c_str(), true);
+
+                console::AlertMessage("Saved\a");
+                isAccepted = true;
+                Sleep(10);
+                send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
+
+            }else if (input == "n" || input == "N") {
+                send(ClientSocket, DECLINE, strlen(DECLINE), 0);
+                console::AlertMessage("Ignored");
+                isAccepted = true;
             }
         }
     }
 }
 
-void Server::SaveFileData(const int& bufferSize, const char* fileName) {
+void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
+    console::AlertMessage("Waiting the File(s)");
+    bool run = true;
+    while (run) {
+        int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
+
+        buffer[bytesReceived] = '\0';
+        if (strcmp(buffer, FILE_SEND) == 0) {
+            memset(buffer, 0, bufferSize);
+            send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
+            recv(ClientSocket, buffer, bufferSize, 0);
+            bufferSize = std::stoi(FileMessageParse(buffer)[0]);
+            console::GetFileAlertMessage(FileMessageParse(buffer)[1].c_str(), bufferSize);
+            console::SaveFileQuestionDisplay();
+            HandleFileProcess(buffer, bufferSize);
+            run = false;
+        
+        }else if (strcmp(buffer, MULTIPLE_FILE_SEND) == 0) {
+            memset(buffer, 0, bufferSize);
+            send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
+            recv(ClientSocket, buffer, bufferSize, 0);
+            std::vector<std::pair<std::string, std::string>> resultMap = MultipleFileMessageParse(buffer);
+            for (const auto& pair : resultMap)
+                console::GetFileAlertMessage(pair.second.c_str(), std::stoi(pair.first),true);
+
+            console::SaveFileQuestionDisplay();
+            HandleFileProcess(buffer, bufferSize, true);
+            run = false;
+        }
+    }
+}
+
+void Server::SaveFileData(const int& bufferSize, const char* fileName,bool allowMultiple) {
     std::ofstream file;
-    file = std::ofstream("C:/Users/" + PcUserName + "/Documents/SyncMagnetSave/" + fileName, std::ios::binary);
+    file.open("C:/Users/" + PcUserName + "/Documents/SyncMagnetSave/" + fileName, std::ios::binary);
     char* dynamicBuffer = new char[bufferSize];
     int readBytes = 0;
     while (readBytes < bufferSize) {
         int recvData = recv(ClientSocket, (dynamicBuffer + readBytes), (bufferSize - readBytes), 0);
-        /*
-            (bufferSize - readBytes): Bu ifade, dynamicBuffer'ın henüz doldurulmamış olan boş kısmının boyutunu hesaplar.
-            Yani, bu kadar fazla bayt daha recv işlemi ile alınabilir ve dynamicBuffer'ın kalan bölümüne yazılabilir.
-        */
         readBytes += recvData;
         file.write((dynamicBuffer + readBytes - recvData), recvData);
-        /*
-            (dynamicBuffer + readBytes - recvData) ifadesi, dynamicBuffer'ın başlangıcından itibaren readBytes kadar ötelenmiş ve
-            ardından recvData kadar geriye kaydırılmış bir adresi temsil eder.
-        */
         console::DownloadFileDisplay(readBytes, bufferSize);
     }
+    printf("\n");
     file.close();
     delete[] dynamicBuffer;
+
+    if (allowMultiple)
+        send(ClientSocket, "NEXT", strlen("NEXT"), 0);
 }
 
-std::vector<std::string> Server::MessageParse(std::string message, int& msgLen, const char seperator) {
+std::vector<std::string> Server::FileMessageParse(std::string message, int& msgLen, const char seperator) {
     std::stringstream sstream;
     std::string temp;
     std::vector<std::string> resultVector;
@@ -235,7 +269,29 @@ std::vector<std::string> Server::MessageParse(std::string message, int& msgLen, 
         std::getline(sstream, temp, seperator);
         resultVector.push_back(temp);
     }
+
     msgLen = count;
+    return resultVector;
+}
+
+std::vector<std::pair<std::string, std::string>> Server::MultipleFileMessageParse(string message){
+    std::vector<std::string> parsedData = FileMessageParse(message);
+    std::map<std::string, std::string> resultMap;
+    std::string _key;
+
+    for (int8_t i = 0; i < parsedData.size(); i++) {
+        if (i % 2 == 0) {
+            _key = parsedData[i];
+        }
+        else {
+            std::string _value = parsedData[i];
+            resultMap[_key] = _value;
+        }
+    }
+    std::vector<std::pair<std::string, std::string>> resultVector(resultMap.begin(), resultMap.end());
+    std::sort(resultVector.begin(), resultVector.end(), [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) {
+        return std::stoi(a.first) > std::stoi(b.first);
+        });
     return resultVector;
 }
 
@@ -244,7 +300,7 @@ std::string Server::GetIPv4() const{
     std::ifstream file("./ipconfig.txt");
 
     std::string line;
-    std::string ipv4Prefix = "   IPv4 Address. . . . . . . . . . .";
+    const std::string ipv4Prefix = "   IPv4 Address. . . . . . . . . . .";
     std::string ipAddress;
 
     while (std::getline(file, line)) {
@@ -257,6 +313,7 @@ std::string Server::GetIPv4() const{
             }
         }
     }
+
     file.close();
 
     if (std::remove("./ipconfig.txt") != 0) {
@@ -282,13 +339,13 @@ void Server::CreateSaveFilePathFolder() const {
     if (!FolderExists(folderPath.c_str())) {
         if (CreateDirectoryW(folderPath.c_str(), NULL)) {
             std::wcout << L"Klasör başarıyla oluşturuldu: " << folderPath << std::endl;
-        }
-        else {
+
+        }else {
             DWORD error = GetLastError();
             if (error == ERROR_ALREADY_EXISTS) {
                 std::wcout << L"Klasör zaten mevcut: " << folderPath << std::endl;
-            }
-            else {
+
+            }else {
                 std::wcerr << L"Klasör oluşturma hatası (" << error << L"): " << folderPath << std::endl;
             }
         }

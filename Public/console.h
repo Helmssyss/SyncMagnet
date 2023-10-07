@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -17,18 +18,22 @@ namespace console {
     constexpr const char* DEFAULT = "\033[0m";
     constexpr const char* BANNER = "-*-SyncMagnet-*-\n";
 
-    inline void SaveFileQuestionDisplay() { printf("%s[~] %sSave File [%sy-Y%s/%sn-N%s]%s\n", RED, PURPLE, YELLOW, PURPLE, YELLOW, PURPLE, DEFAULT); }
+
+    inline void SaveFileQuestionDisplay() { printf("%s[~] %sSave File(s) [%sy-Y%s/%sn-N%s]%s\n", RED, PURPLE, YELLOW, PURPLE, YELLOW, PURPLE, DEFAULT); }
     inline void AlertMessage(const char* msg) { printf("\n%s[~] %s%s%s\n", RED, PURPLE, msg, DEFAULT); }
+    inline void ErrorDisplay(const char* msg) { printf("\n%s[!] %s%s%s\n", PURPLE, RED, msg, DEFAULT); }
 
     void Banner();
     void Header();
     void QuitMessage();
     void Body(string chr);
     void ConnectedClientDisplay(const char* client);
-    void GetFileAlertMessage(const char* fileName, int fileSize);
+    void GetFileAlertMessage(const char* fileName, int fileSize, bool getIsMultipleFile = false);
     void UploadFileDisplay(const int& uploadByte, const long& fileSize);
     void CompleteUploadFileDisplay(const long& fileSize);
     void DownloadFileDisplay(const int& downloadByte, const long& fileSize);
     
     string Input();
+
+    
 }
