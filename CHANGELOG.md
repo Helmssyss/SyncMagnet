@@ -1,3 +1,11 @@
+## (Desktop) v0.0.6.1 - 13.10.2023
+### New Features
+ - Gui developed
+ - Multiple files can now be sent from desktop to mobile.
+
+### Notice
+ - It will be released as two applications: cli (console line interface) and gui.
+---
 ## (Android | Desktop) v0.0.6 - 06.10.2023
 ### Bug Fix
  -  Visual improvement in file sending
