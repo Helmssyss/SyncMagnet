@@ -12,32 +12,31 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define OK_SEND             "OK_SEND"
-#define SINGLE              "SINGLE"
-#define DECLINE             "DECLINE"
-#define DISCONNECT          "DISCONNECT"
-#define DEVICE              "DEVICE"
-#define FILE_CAME           "FILE_CAME"
-#define FILE_BYTE           "FILE_BYTE"
-#define FILE_BYTE_TO        "FILE_BYTE_TO"
-#define FILE_SEND		    "FILE_SEND"
-#define FILE_SEND_END	    "FILE_SEND_END"
-#define MULTIPLE_FILE_SEND  "MULTIPLE_FILE_SEND"
-#define NEXT_TO             "NEXT_TO"
-#define NEXT			    "NEXT"
-#define GET_BATTERY_STATE   "GET_BATTERY_STATE"
-#define FILE_CHUNK_SIZE     4096
+#define OK_SEND                 "OK_SEND"
+#define SINGLE                  "SINGLE"
+#define DECLINE                 "DECLINE"
+#define DISCONNECT              "DISCONNECT"
+#define DEVICE                  "DEVICE"
+#define FILE_CAME               "FILE_CAME"
+#define FILE_BYTE               "FILE_BYTE"
+#define FILE_BYTE_TO            "FILE_BYTE_TO"
+#define FILE_SEND               "FILE_SEND"
+#define FILE_SEND_END           "FILE_SEND_END"
+#define MULTIPLE_FILE_SEND      "MULTIPLE_FILE_SEND"
+#define NEXT_TO                 "NEXT_TO"
+#define NEXT                    "NEXT"
+#define GET_BATTERY_STATE       "GET_BATTERY_STATE"
+#define FILE_CHUNK_SIZE         4096
 
-short _LENGTH = 0;
-SOCKET ServerSocket{};
-SOCKET ClientSocket{};
-sockaddr_in ServerAddr{};
-sockaddr_in ClientAddr{};
-std::string PcUserName;
-const char* deviceName = "";
-pugi::xml_document doc;
-pugi::xml_node root = doc.append_child("root");
-// pugi::xml_node deviceBatteryXml;
+static short _LENGTH = 0;
+static const char* deviceName = "";
+static SOCKET ServerSocket{};
+static SOCKET ClientSocket{};
+static sockaddr_in ServerAddr{};
+static sockaddr_in ClientAddr{};
+static std::string PcUserName;
+static pugi::xml_document doc;
+static pugi::xml_node root = doc.append_child("root");
 
 std::vector<std::string> FileMessageParse(std::string message, short& msgLen = _LENGTH, const char seperator = '|') {
     std::stringstream sstream;
@@ -125,9 +124,6 @@ void SendClientFile(const char *inputFile, char* buffer, const int &bufferSize) 
             delete[] fileBuffer;
         }
     }
-    // send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
-    // Sleep(10);
-
 }
 
 extern "C" {
@@ -176,7 +172,6 @@ extern "C" {
             Sleep(100);
         }
         send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
-        // Sleep(100);
     }
 
     __declspec(dllexport) void CloseServer() {
