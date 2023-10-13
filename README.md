@@ -1,5 +1,7 @@
 # SyncMagnet
 
+### This repo is still under development.
+
 For Windows only
 <div align = "center">
    
