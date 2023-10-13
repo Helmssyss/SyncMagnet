@@ -5,7 +5,7 @@ import sys
 import threading
 import xml.etree.ElementTree as ET
 from time import sleep
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -37,14 +37,14 @@ class Ui_MainWindow(QMainWindow):
                 self.label.clear()
                 sleep(0.5)
 
-            XmlTree = ET.parse(r'.\magnet.xml')
-            root = XmlTree.getroot()
-            print(root[0].tag)
-            device_name = root.find('DeviceName').text
-            # device_battery = root.find('DeviceBattery').text
-            self.label.setText(f"Device Name: {device_name}")
-            os.remove(r".\magnet.xml")
-            # self.label_2.setText(f"Battery: {device_battery}%")
+            # XmlTree = ET.parse(r'.\magnet.xml')
+            # root = XmlTree.getroot()
+            # print(root[0].tag)
+            # device_name = root.find('DeviceName').text
+            # # device_battery = root.find('DeviceBattery').text
+            # self.label.setText(f"Device Name: {device_name}")
+            # os.remove(r".\magnet.xml")
+            # # self.label_2.setText(f"Battery: {device_battery}%")
     
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -151,8 +151,6 @@ class Ui_MainWindow(QMainWindow):
         self.frame_5.setObjectName(u"frame_5")
         self.frame_5.setFrameShape(QFrame.StyledPanel)
         self.frame_5.setFrameShadow(QFrame.Raised)
-        self.label_4 = QLabel(self.frame_5)
-        self.label_4.setObjectName(u"label_4")
 
         self.verticalLayout_3.addWidget(self.frame_5)
 
@@ -183,12 +181,10 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"Send", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"cihaz \u00f6zellikleri", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Depolama alan\u0131", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"14.72gb", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
     
     def closeEvent(self, event):
         if os.path.exists(r".\magnet.xml"):
-            print("magnet.xml dosyası silindi")
             os.remove(r".\magnet.xml")
         print(self.threads)
         self.threads.clear()
