@@ -1,3 +1,13 @@
+## (Desktop) v0.0.6.2 - 17.10.2023
+### Bug Fix
+ - Connection problems fixed.
+ - Sync issues fixed.
+ - Gui improvements.
+
+### TODO
+ - Desktop will be beautified.
+ - Animations for desktop.
+---
 ## (Desktop) v0.0.6.1 - 13.10.2023
 ### New Features
  - Gui developed
