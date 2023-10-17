@@ -1,10 +1,10 @@
-CXX_STD = -std=c++17
 CXX_COMPILER = g++
 CXXFLAGS = -fPIC -shared
+CXX_STD = -std=c++17
+THIRDPARTYCXX = ./src/service/src/3rdParty/pugixml.cpp 
+CXXDLL = ./src/service/DLL/sync_service.dll
+CXXFILE = ./src/service/src/sync_service.cpp
 CXXLFLAGS = -lws2_32
-CXXDLL = ./src/service/magnet_service.dll
-CXXFILE = ./src/service/magnet_service.cpp
-THIRDPARTYCXX = ./src/service/third_party/pugixml.cpp 
 
 run: clean build finish
 
