@@ -62,7 +62,7 @@ class ConnectWindow(QMainWindow):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"SyncMagnet 0.0.6.1", None))
-        self.connectStartButton.setText(QCoreApplication.translate("MainWindow", u"Ba\u011flant\u0131y\u0131 Ba\u015flat", None))
+        self.connectStartButton.setText(QCoreApplication.translate("MainWindow", u"Start Connection", None))
         self.sourceCodeButton.setText(QCoreApplication.translate("MainWindow", u"Source", None))
         self.googlePlayButton.setText(QCoreApplication.translate("MainWindow", u"Google Play", None))
         self.markQuestionButton.setText(QCoreApplication.translate("MainWindow", u"?", None))

@@ -7,7 +7,7 @@ from src.widgets.sync_list_widget import SyncListWidget
 
 class SyncMagnetDllService:
     def __init__(self) -> None:
-        self._dllPath:str = r".\src\service\magnet_service.dll"
+        self._dllPath:str = r".\src\service\DLL\sync_service.dll"
         self._magnetDll:ctypes.CDLL = None
         self._clientName:str = ""
     
