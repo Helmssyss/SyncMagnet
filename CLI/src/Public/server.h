@@ -5,18 +5,19 @@
 #include <vector>
 #include <map>
 
-#define OK_SEND			   "OK_SEND"
-#define SINGLE             "SINGLE"
-#define DECLINE            "DECLINE"
-#define DISCONNECT         "DISCONNECT"
-#define DEVICE_NAME        "DEVICE_NAME"
-#define FILE_CAME          "FILE_CAME"
-#define FILE_BYTE          "FILE_BYTE"
-#define FILE_BYTE_TO       "FILE_BYTE_TO"
-#define FILE_SEND		   "FILE_SEND"
-#define FILE_SEND_END	   "FILE_SEND_END"
-#define MULTIPLE_FILE_SEND "MULTIPLE_FILE_SEND"
-#define NEXT			   "NEXT"
+#define SINGLE                  "SINGLE"
+#define DECLINE                 "DECLINE"
+#define DISCONNECT              "DISCONNECT"
+#define DEVICE                  "DEVICE"
+#define NEXT                    "NEXT"
+#define OK_SEND                 "OK_SEND"
+#define S_FILE_CAME             "S_FILE_CAME"
+#define S_FILE_SEND             "S_FILE_SEND"
+#define S_FILE_SEND_END         "S_FILE_SEND_END"
+#define C_FILE_SEND_END         "C_FILE_SEND_END"
+#define C_MULTIPLE_FILE_SEND    "C_MULTIPLE_FILE_SEND"
+#define C_FILE_SEND             "C_FILE_SEND"
+#define FILE_CHUNK_SIZE         4096
 
 using namespace std;
 

@@ -98,7 +98,7 @@ void Server::Start() {
 }
 
 std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
-    send(ClientSocket, DEVICE_NAME, strlen(DEVICE_NAME), 0);
+    send(ClientSocket, DEVICE, strlen(DEVICE), 0);
     const int8_t recvData = recv(ClientSocket, buffer, buffSize, 0);
     const std::string deviceName = FileMessageParse(buffer)[1];
     const int8_t deviceNameLength = std::stoi(FileMessageParse(buffer)[0]);
@@ -125,14 +125,14 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize) + seperator);
     send(ClientSocket, fileNameSize.c_str(), fileNameSize.length(), 0);
     Sleep(10);
-    send(ClientSocket, FILE_CAME, strlen(FILE_CAME), 0);
+    send(ClientSocket, S_FILE_CAME, strlen(S_FILE_CAME), 0);
     
     bool run = true;
     while (run) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
         buffer[bytesReceived] = '\0';
 
-        if (strcmp(buffer, FILE_SEND) == 0) {
+        if (strcmp(buffer, S_FILE_SEND) == 0) {
             file.open(inputFile, std::ios::binary);
             file.seekg(0, std::ios::beg);
             int bytesSent = 0;
@@ -157,7 +157,7 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     }
     console::CompleteUploadFileDisplay(fileSize);
     Sleep(10);
-    send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
+    send(ClientSocket, S_FILE_SEND_END, strlen(S_FILE_SEND_END), 0);
     memset(buffer, 0, sizeof(buffer));
 }
 
@@ -188,7 +188,7 @@ void Server::HandleFileProcess(char* &buffer, int &bufferSize, bool saveMultiple
                 console::AlertMessage("Saved\a");
                 isAccepted = true;
                 Sleep(10);
-                send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
+                send(ClientSocket, C_FILE_SEND_END, strlen(C_FILE_SEND_END), 0);
 
             }else if (input == "n" || input == "N") {
                 send(ClientSocket, DECLINE, strlen(DECLINE), 0);
@@ -206,7 +206,7 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
         int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
 
         buffer[bytesReceived] = '\0';
-        if (strcmp(buffer, FILE_SEND) == 0) {
+        if (strcmp(buffer, C_FILE_SEND) == 0) {
             memset(buffer, 0, bufferSize);
             send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
             recv(ClientSocket, buffer, bufferSize, 0);
@@ -216,7 +216,7 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
             HandleFileProcess(buffer, bufferSize);
             run = false;
         
-        }else if (strcmp(buffer, MULTIPLE_FILE_SEND) == 0) {
+        }else if (strcmp(buffer, C_MULTIPLE_FILE_SEND) == 0) {
             memset(buffer, 0, bufferSize);
             send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
             recv(ClientSocket, buffer, bufferSize, 0);
