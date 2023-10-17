@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>plus.png</file>
+    <file>negative.png</file>
+    <file>logo1.png</file>
+  </qresource>
+</RCC>
