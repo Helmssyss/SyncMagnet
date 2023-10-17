@@ -10,8 +10,9 @@ For Windows only
 </div>
 
 <div align = "center">
+   
    <img src = "https://github.com/Helmssyss/SyncMagnet/assets/84701901/8420fdb2-b2e8-4e9d-ab35-d0de3fca2a2b" width=60% height=60%>
+   <img src = "https://github.com/Helmssyss/SyncMagnet/assets/84701901/112deb91-ec79-43e4-a53b-8525cb192a2d" width=60% height=60%>
 
+   ### [CHANGELOG](https://github.com/Helmssyss/SyncMagnet/blob/main/CHANGELOG.md)
 </div>
-
-### [CHANGELOG](https://github.com/Helmssyss/SyncMagnet/blob/main/CHANGELOG.md)
