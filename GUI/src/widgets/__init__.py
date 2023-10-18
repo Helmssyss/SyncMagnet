@@ -1,1 +1,0 @@
-from .sync_list_widget import SyncListWidget
