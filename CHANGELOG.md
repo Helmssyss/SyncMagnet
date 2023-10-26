@@ -1,3 +1,16 @@
+## (Desktop) v0.0.6.3 - 27.10.2023
+### New Features
+ - Battery percentage in real time
+ - Icons added.
+ - Notification added. If it is put in the background and there is a process, you will be notified.,
+
+### Bug Fix
+ - Improvements to gui.
+ - Bugs fixed in gui.
+ - User based errors that may occur have been resolved.
+ - Little improvements to performance.
+   
+---
 ## (Desktop) v0.0.6.2 - 17.10.2023
 ### Bug Fix
  - Connection problems fixed.
