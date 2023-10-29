@@ -12,7 +12,8 @@ For Windows only
 <div align = "center">
    
    <img src = "https://github.com/Helmssyss/SyncMagnet/assets/84701901/8420fdb2-b2e8-4e9d-ab35-d0de3fca2a2b" width=60% height=60%>
-   <img src = "https://github.com/Helmssyss/SyncMagnet/assets/84701901/90450640-739f-4b02-8832-28c3a264fadb" width=60% height=60%>
+   <img src = "https://github.com/Helmssyss/SyncMagnet/assets/84701901/0b13aec0-5209-4ec2-b15e-d32c4086770e" width=60% height=60%>
+
 
    ### [CHANGELOG](https://github.com/Helmssyss/SyncMagnet/blob/main/CHANGELOG.md)
 
