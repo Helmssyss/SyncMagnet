@@ -18,8 +18,9 @@
  - Gui improvements.
 
 ### TODO
- - Desktop will be beautified.
- - Animations for desktop.
+- [x] Desktop will be beautified.
+- [x] Animations for desktop.
+ 
 ---
 ## (Desktop) v0.0.6.1 - 13.10.2023
 ### New Features
