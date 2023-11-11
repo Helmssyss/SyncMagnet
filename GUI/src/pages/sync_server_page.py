@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os
+import xml.etree.ElementTree    as ET
 from PyQt5.QtCore               import *
 from PyQt5.QtGui                import *
 from PyQt5.QtWidgets            import *
@@ -627,21 +629,6 @@ class ServerWindow(QMainWindow):
 
         self.horizontalLayout.addWidget(self.openDownloadFolderButton)
 
-        self.changeDownloadFolderButton = QPushButton(self.downloadPage)
-        self.changeDownloadFolderButton.setObjectName(u"pushButton_4")
-        self.changeDownloadFolderButton.setMinimumSize(QSize(7, 47))
-        self.changeDownloadFolderButton.setMaximumSize(QSize(158, 47))
-        font7 = QFont()
-        font7.setPointSize(8)
-        self.changeDownloadFolderButton.setFont(font7)
-        self.changeDownloadFolderButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.changeDownloadFolderButton.setStyleSheet(SyncStyle.serverPageChangeDownloadFolderButton)
-        icon14 = QIcon()
-        icon14.addFile(u":/16x16/assets/16x16/cil-folder.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.changeDownloadFolderButton.setIcon(icon14)
-
-        self.horizontalLayout.addWidget(self.changeDownloadFolderButton)
-
         self.horizontalSpacer = QSpacerItem(49, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
@@ -911,7 +898,6 @@ class ServerWindow(QMainWindow):
         self.changelogTextEdit.setPlainText(QCoreApplication.translate("MainWindow", u"asdqweqweqewqeqe", None))
         self.changelogTextEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"zxczxczxc", None))
         self.openDownloadFolderButton.setText(QCoreApplication.translate("MainWindow", u"Open Download Folder", None))
-        self.changeDownloadFolderButton.setText(QCoreApplication.translate("MainWindow", u"Change Download Folder", None))
         ___qtablewidgetitem = self.downloadedFilesTable.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText("File Size")
         ___qtablewidgetitem1 = self.downloadedFilesTable.horizontalHeaderItem(1)
@@ -951,6 +937,7 @@ class ServerWindow(QMainWindow):
         self.btn_minimize.clicked.connect(lambda: self.showMinimized())
         self.btn_toggle_menu.clicked.connect(lambda: self.toggleMenu(220, True))
         self.githubButton.clicked.connect(lambda: openSourcePage("https://github.com/Helmssyss/SyncMagnet"))
+        self.openDownloadFolderButton.clicked.connect(lambda: self.openFolder())
 
         self.appRunWorker = SyncProcessRunWorker(self.APPLICATON)
         self.appRunThread = QThread(self)
@@ -1013,9 +1000,14 @@ class ServerWindow(QMainWindow):
         if event.type() == QEvent.MouseButtonDblClick:
             QTimer.singleShot(250, lambda: self.setMaximized())
 
+    def openFolder(self):
+        print(self.label_top_info_1.text())
+        return os.startfile(self.label_top_info_1.text())
+
     def goHomePage(self):
         self.stackedWidget.setCurrentIndex(0)
         self.label_top_info_2.setText("| HOME")
+        self.label_top_info_1.setText("")
         if not self.downloadMenuButton.isEnabled():
             if getattr(self, 'listener', None):
                 self.listener.setRunState(False)
@@ -1031,6 +1023,7 @@ class ServerWindow(QMainWindow):
     def goUploadPage(self):
         self.stackedWidget.setCurrentIndex(2)
         self.label_top_info_2.setText("| UPLOAD")
+        self.label_top_info_1.setText("")
         if not self.downloadMenuButton.isEnabled():
             if getattr(self, 'listener', None):
                 self.listener.setRunState(False)
@@ -1046,6 +1039,10 @@ class ServerWindow(QMainWindow):
     def goDownloadPage(self):
         self.stackedWidget.setCurrentIndex(1)
         self.label_top_info_2.setText("| DOWNLOAD")
+        root = ET.parse(r".\MagnetManifest.xml")
+        fPathTag = root.find('.//FolderPath')
+        fPath = fPathTag.attrib["default_folder_path"]
+        self.label_top_info_1.setText(fPath)
         if getattr(self, 'listener', None):
             self.listener.setRunState(False)
             self.listenerThread.quit()
@@ -1092,9 +1089,7 @@ class ServerWindow(QMainWindow):
         self.btn_maximize_restore.setEnabled(False)
         self.btn_minimize.setEnabled(False)
         self.btn_toggle_menu.setEnabled(False)
-        self.githubButton.setEnabled(False)
         self.openDownloadFolderButton.setEnabled(False)
-        self.changeDownloadFolderButton.setEnabled(False)
 
     def loadWindowClosed(self):
         try:
@@ -1111,9 +1106,7 @@ class ServerWindow(QMainWindow):
             self.btn_maximize_restore.setEnabled(True)
             self.btn_minimize.setEnabled(True)
             self.btn_toggle_menu.setEnabled(True)
-            self.githubButton.setEnabled(True)
             self.openDownloadFolderButton.setEnabled(True)
-            self.changeDownloadFolderButton.setEnabled(True)
             if self.stackedWidget.currentIndex() == 1:
                 self.downloadMenuButton.setEnabled(False)
             else:

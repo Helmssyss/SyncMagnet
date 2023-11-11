@@ -61,8 +61,8 @@ class LoadWindow(QWidget):
 
     @pyqtSlot(int)
     def manage(self, size: int):
-        self.totalDownloadLabel.setGeometry(QRect(120, 30, 161, 31))
-        self.totalDownloadLabel.setText(f"""<html><head/><body><p><span style="font-size:16pt;">{self.dll.formatSize(size).replace('K','').replace('B','').replace('M','').replace('G','')} </span><span style="font-size:16pt; vertical-align:super;">{self.dll.formatSize(self.dll.GetCurrentTotalDownloadFileSize())}</span></p></body></html>""")
+        self.totalDownloadLabel.setGeometry(QRect(120, 30, 181, 31))
+        self.totalDownloadLabel.setText(f"""<html><head/><body><p><span style="font-size:16pt;">{self.dll.formatSize(size)} </span><span style="font-size:16pt; vertical-align:super;">{self.dll.formatSize(self.dll.GetCurrentTotalDownloadFileSize())}</span></p></body></html>""")
         self.progressBar.setMaximum(self.dll.GetCurrentTotalDownloadFileSize())
         self.progressBar.setValue(size)
         fSize = self.dll.GetCurrentDownloadFileSize()

@@ -49,6 +49,9 @@ void SaveFileData(const int &bufferSize, const char *fileName);
 void HandleFileProcess(char *buffer, const int &bufferSize = 1024, bool allowMultiple = false);
 void XMLFile(const char* deviceName, const char* batterySize);
 void GetCurrentFileCompleted(const char *currentFileSendCompleted, bool isDownload = false);
+void CreateSaveFilePathFolder(); //
+bool FolderExists(const wchar_t* folderPath); //
+bool FileExists(const wchar_t* filePath); // 
 
 SYNCAPI void SetupServer(const char *ipAddr);
 SYNCAPI void StartServer();

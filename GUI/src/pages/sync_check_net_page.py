@@ -92,7 +92,7 @@ class CheckNetWindow(QMainWindow):
 
     def retranslateUi(self, MainWindow: QMainWindow):
         MainWindow.setWindowTitle("Sync Magnet")
-        self.label.setText("Checking Connection...")
+        self.label.setText("Checking Connection")
 
     def connectButton(self):
         self.closeButton.clicked.connect(lambda: self.closeApp())
@@ -111,7 +111,7 @@ class CheckNetWindow(QMainWindow):
     @pyqtSlot(bool)
     def progressBarState(self,check: bool):
         print(self.waitcount)
-        if check and self.waitcount == 13:
+        if check and self.waitcount == 10:
             self.checkWorker.setRunState(False)
             self.checkThread.quit()
             self.checkThread.wait()

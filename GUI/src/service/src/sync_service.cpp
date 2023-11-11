@@ -14,9 +14,10 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-static pugi::xml_document doc;
-static pugi::xml_node root = doc.append_child("root");
-static pugi::xml_node deviceRoot = root.append_child("Device");
+static pugi::xml_document xmlDoc;
+static pugi::xml_node xmlRoot = xmlDoc.append_child("SyncMagnet");
+static pugi::xml_node xmlDeviceRoot = xmlRoot.append_child("Device");
+static pugi::xml_node xmlFolderPath = xmlRoot.append_child("FolderPath");
 
 std::vector<std::string> FileMessageParse(std::string message, short& msgLen, const char seperator) {
     std::stringstream sstream;
@@ -63,38 +64,57 @@ std::vector<std::pair<std::string, std::string>> MultipleFileMessageParse(std::s
 }
 
 void XMLFile(const char* deviceName, const char* batterySize){
-    if (deviceRoot) {
-        pugi::xml_attribute deviceNameAttr = deviceRoot.attribute("device_name");
-        pugi::xml_attribute deviceBatteryAttr = deviceRoot.attribute("device_battery");
+    if (xmlDeviceRoot) {
+        pugi::xml_attribute deviceNameAttr = xmlDeviceRoot.attribute("device_name");
+        pugi::xml_attribute deviceBatteryAttr = xmlDeviceRoot.attribute("device_battery");
 
         if (deviceNameAttr) 
             deviceNameAttr.set_value(deviceName);
         else 
-            deviceRoot.append_attribute("device_name").set_value(deviceName);
+            xmlDeviceRoot.append_attribute("device_name").set_value(deviceName);
         
 
         if (deviceBatteryAttr) 
             deviceBatteryAttr.set_value(batterySize);
         else 
-            deviceRoot.append_attribute("device_battery").set_value(batterySize);
+            xmlDeviceRoot.append_attribute("device_battery").set_value(batterySize);
         
 
     } else {
-        deviceRoot = root.append_child("Device");
-        deviceRoot.append_attribute("device_name").set_value(deviceName);
-        deviceRoot.append_attribute("device_battery").set_value(batterySize);
+        xmlDeviceRoot = xmlRoot.append_child("Device");
+        xmlDeviceRoot.append_attribute("device_name").set_value(deviceName);
+        xmlDeviceRoot.append_attribute("device_battery").set_value(batterySize);
     }
 
-    doc.save_file("./MagnetManifest.xml");
+    xmlDoc.save_file("./MagnetManifest.xml");
 }
 
 void GetCurrentFileCompleted(const char* currentFileSendCompleted, bool isDownload) {
     if (!isDownload){ // from pc to mobile
-        root.append_child("SendFile").append_attribute("file").set_value(currentFileSendCompleted);
+        xmlRoot.append_child("SendFile").append_attribute("file").set_value(currentFileSendCompleted);
     }else{ // from mobile to pc
-        root.append_child("GetFile").append_attribute("file").set_value(currentFileSendCompleted);
+        xmlRoot.append_child("GetFile").append_attribute("file").set_value(currentFileSendCompleted);
     }
-    doc.save_file("./MagnetManifest.xml");
+    xmlDoc.save_file("./MagnetManifest.xml");
+}
+
+void CreateSaveFilePathFolder() {
+    std::wstring folderPath = L"C:/Users/" + std::wstring(PcUserName.begin(), PcUserName.end()) + L"/Documents/SyncMagnetSave";
+    xmlFolderPath.append_attribute("default_folder_path");
+    xmlFolderPath.attribute("default_folder_path").set_value(std::string("C:/Users/" + PcUserName + "/Documents/SyncMagnetSave").c_str());
+    if (!FolderExists(folderPath.c_str()))
+        CreateDirectoryW(folderPath.c_str(), NULL);
+    xmlDoc.save_file("./MagnetManifest.xml");
+}
+
+bool FolderExists(const wchar_t* folderPath){
+    DWORD attributes = GetFileAttributesW(folderPath);
+    return (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+bool FileExists(const wchar_t* filePath){
+    DWORD attributes = GetFileAttributesW(filePath);
+    return (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 void GetClientDevice(char* buffer, const int &buffSize) {
@@ -217,6 +237,7 @@ SYNCAPI void SetupServer(const char* ipAddr) {
     if (GetUserName(getName, &size)) {
         std::string userName(getName, getName + size - 1);
         PcUserName = userName;
+        CreateSaveFilePathFolder();
     }
 
     bind(ServerSocket, (sockaddr*)&ServerAddr, sizeof(ServerAddr));
