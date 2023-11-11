@@ -172,10 +172,10 @@ void SendClientFile(const char *inputFile, char* buffer, const int &bufferSize) 
                 Sleep(5);
                 send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
                 bytesSent += bytesToSend;
-                printf("\r%i/%i", bytesSent, fileSize);
+                // printf("\r%i/%i", bytesSent, fileSize);
                 downloadFileSize = bytesSent;
             }
-            printf("\nDosya Yuklendi\n");
+            // printf("\nDosya Yuklendi\n");
             run = false;
             file.close();
             delete[] fileBuffer;
@@ -197,7 +197,7 @@ void SaveFileData(const int& bufferSize, const char* fileName){
         // printf("\r%i/%i", readBytes, bufferSize);
         downloadFileSize = readBytes;
     }
-    std::cout << "\nfileName: " << fileName << std::endl;
+    // std::cout << "\nfileName: " << fileName << std::endl;
 
     file.close();
     delete[] dynamicBuffer;
@@ -209,16 +209,16 @@ void HandleFileProcess(char* buffer, const int &bufferSize, bool allowMultiple){
     if (!allowMultiple){
         send(ClientSocket, SINGLE, strlen(SINGLE), 0);
         SaveFileData(bufferSize, FileMessageParse(buffer)[1].c_str());
-        std::cout << "Saved" << std::endl;
+        // std::cout << "Saved" << std::endl;
     }else{
         std::vector<std::pair<std::string, std::string>> resultMap = MultipleFileMessageParse(buffer);
         for (const auto& pair : resultMap){
             send(ClientSocket, NEXT, strlen(NEXT), 0);
-            std::cout << pair.second.c_str() << "<------>" << std::stoi(pair.first) << std::endl;
+            // std::cout << pair.second.c_str() << "<------>" << std::stoi(pair.first) << std::endl;
             SaveFileData(std::stoi(pair.first), pair.second.c_str());
             GetCurrentFileCompleted(pair.second.c_str(), true);
         }
-        std::cout << "Saved Multiple File" << std::endl;
+        // std::cout << "Saved Multiple File" << std::endl;
         Sleep(10);
     }
 }
@@ -252,7 +252,7 @@ SYNCAPI void StartServer() {
         isCanGetDeviceState = true;
         
     }catch(const std::exception& e){
-        std::cerr << e.what() << '\n';
+        // std::cerr << e.what() << '\n';
     }
 }
 
@@ -260,13 +260,14 @@ SYNCAPI void SendSelectFiles(const char* *files, int fileCount) {
     sendFinished = false;
     isCanGetDeviceState = false;
     isLoadFile = true;
-    std::cout << "SendSelectFiles Basladi" << std::endl;
+    // std::cout << "SendSelectFiles Basladi" << std::endl;
     for (int i = 0; i < fileCount; i++){
         SendClientFile(files[i], buffer, bufferSize);
         Sleep(1000);
         GetCurrentFileCompleted(files[i]);
     }
-
+    downloadFileSize = 1;
+    downloadTotalFileSize = 1;
     send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
     sendFinished = true;
     isCanGetDeviceState = true;
@@ -281,7 +282,7 @@ SYNCAPI void HandleFileTransfer(){
         ioctlsocket(ClientSocket, FIONREAD, &availableData);
         if (availableData > 0){
             int bytesReceived = recv(ClientSocket, buffer, 1024, 0);
-            std::cout << "HandleFileTransfer recv: " << buffer << std::endl;
+            // std::cout << "HandleFileTransfer recv: " << buffer << std::endl;
             buffer[bytesReceived] = '\0';
             if (strcmp(buffer, C_FILE_SEND) == 0){
                 memset(buffer, 0, sizeof(buffer));
@@ -299,13 +300,13 @@ SYNCAPI void HandleFileTransfer(){
                 HandleFileProcess(buffer, 1024, true);
                 send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
             }
-            std::cout << "isCanGetDeviceState -> " << isCanGetDeviceState << std::endl;
+            // std::cout << "isCanGetDeviceState -> " << isCanGetDeviceState << std::endl;
             downloadTotalFileSize = 1;
             downloadFileSize = 1;
         }
         isLoadFile = false;
     }catch(const std::exception& e){
-        std::cerr << "BIR HATA OLUSTU ----> " << e.what() << '\n';
+        // std::cerr << "BIR HATA OLUSTU ----> " << e.what() << '\n';
     }
 }
 

@@ -1,11 +1,8 @@
 import ctypes
 import os
-from PyQt5.QtGui                   import QIcon
-from PyQt5.QtWidgets               import QTableWidgetItem
 from socket                        import gethostbyname
 from socket                        import gethostname
 from src.widgets.sync_list_widget  import SyncListWidget
-from src.widgets.sync_table_widget import SyncTableWidget
 
 class SyncMagnetDllService():
     currentfileIsSending = None
@@ -38,19 +35,16 @@ class SyncMagnetDllService():
     def ManageDllFinished(self):
         self.__magnetDll.CloseServer()
     
-    def SelectSendDllFilePath(self, sendListWidget: SyncListWidget, completedTableWidget: SyncTableWidget):
+    def SelectSendDllFilePath(self, sendListWidget: SyncListWidget):
         """ DOSYALARI GÖNDER """
         
         file_info_list = []
-        items_to_remove = []
-
         for i in range(sendListWidget.count()):
             item = sendListWidget.item(i)
             if item and item.isSelected():
                 file_name = item.text()
                 file_size = os.path.getsize(file_name)
                 file_info_list.append((file_size, file_name))
-                items_to_remove.append(item)
 
         sorted_file_info_list = sorted(file_info_list, key=lambda x: x[0], reverse=True)
 
@@ -58,17 +52,8 @@ class SyncMagnetDllService():
         cxx_file_array = (ctypes.c_char_p * len(cxx_file_list))(*cxx_file_list)
         file_count = len(sorted_file_info_list)
         self.__magnetDll.SendSelectFiles(cxx_file_array, file_count)
-
-        for row, file_info in enumerate(sorted_file_info_list):
-            completedTableWidget.insertRow(row)
-            size_item = QTableWidgetItem(self.formatSize(file_info[0]))
-            size_item.setIcon(QIcon(":/16x16/assets/16x16/cil-check-alt.png"))
-            name_item = QTableWidgetItem(file_info[1])
-            completedTableWidget.setItem(row, 0, size_item)
-            completedTableWidget.setItem(row, 1, name_item)
-
-        for item in items_to_remove:
-            sendListWidget.deleteSelectedItem(item)
+        
+        return sorted_file_info_list
             
     def HandleFileTransfer(cls):
         return cls.__magnetDll.HandleFileTransfer()

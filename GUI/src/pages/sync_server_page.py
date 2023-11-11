@@ -930,7 +930,7 @@ class ServerWindow(QMainWindow):
         self.uploadMenuButton.clicked.connect(lambda: self.goUploadPage())
         self.downloadMenuButton.clicked.connect(lambda: self.goDownloadPage())
         self.downloadButton.clicked.connect(lambda: self.goDownloadPage())
-        self.selectAllButton.clicked.connect(lambda: self.allSelectItems())
+        self.selectAllButton.clicked.connect(lambda: self.allSelectItemsButtonState())
         self.sendButton.clicked.connect(lambda: self.sendFiles())
         self.btn_close.clicked.connect(lambda: self.closeApplication())
         self.btn_maximize_restore.clicked.connect(lambda: self.setMaximized())
@@ -1142,7 +1142,7 @@ class ServerWindow(QMainWindow):
         self.deviceButton.setToolTip(f"<html><head/><body><p>{param['device_name']}</p></body></html>")
         self.batteryButton.setText(f"        {param['device_battery']}%")
     
-    def allSelectItems(self):
+    def allSelectItemsButtonState(self):
         if not self.isSelectAll:
             self.selectAllButton.setText("Unselect")
             self.selectAllButton.setIcon(QIcon(u":/16x16/assets/16x16/cil-x.png"))
@@ -1156,25 +1156,42 @@ class ServerWindow(QMainWindow):
 
     def sendFiles(self):
         if len(self.sendFileListWidget.selectedItems()) > 0:
+            if getattr(self, 'listener', None):
+                self.listener.setRunState(False)
+                self.listenerThread.quit()
+                self.listenerThread.wait()
+            self.isDownload = False
+            self.loadPageListener()
             self.homeMenuButton.setEnabled(False)
             self.uploadMenuButton.setEnabled(False)
             self.downloadMenuButton.setEnabled(False)
-            self.selectItemSendWorker = SyncFileSenderWorker(sendListWidget=self.sendFileListWidget,completedTableWidget=self.completedFileTableWidget)
+            self.selectItemSendWorker = SyncFileSenderWorker(sendListWidget=self.sendFileListWidget)
             self.selectItemSendThread = QThread(self)
             self.selectItemSendWorker.moveToThread(self.selectItemSendThread)
             self.selectItemSendWorker.sendCompleted.connect(self.onSendWorkerCompleted)
             self.selectItemSendThread.started.connect(self.selectItemSendWorker.start)
             self.selectItemSendThread.start()
-            self.isDownload = False
-            self.loadPageListener()
 
-    @pyqtSlot()
-    def onSendWorkerCompleted(self):
+    @pyqtSlot(list)
+    def onSendWorkerCompleted(self,sendFiles: list):
+        for row, file_info in enumerate(sendFiles):
+            self.completedFileTableWidget.insertRow(row)
+            size_item = QTableWidgetItem(self.syncMagnetDllService.formatSize(file_info[0]))
+            size_item.setIcon(QIcon(":/16x16/assets/16x16/cil-check-alt.png"))
+            name_item = QTableWidgetItem(file_info[1])
+            self.completedFileTableWidget.setItem(row, 0, size_item)
+            self.completedFileTableWidget.setItem(row, 1, name_item)
+
+        for item in self.sendFileListWidget.selectedItems():
+            self.sendFileListWidget.deleteSelectedItem(item)
+
         self.selectItemSendThread.quit()
         self.selectItemSendThread.wait()
         self.homeMenuButton.setEnabled(True)
         self.uploadMenuButton.setEnabled(True)
         self.downloadMenuButton.setEnabled(True)
+        self.isSelectAll = False
+        self.allSelectItemsButtonState()
 
     def toggleMenu(self, maxWidth, enable):
         isHidden = False

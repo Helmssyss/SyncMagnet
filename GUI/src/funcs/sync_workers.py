@@ -65,15 +65,14 @@ class SyncClientInfoWorker(QObject):
 
 # ##### ===> SyncFileSenderWorker
 class SyncFileSenderWorker(QObject):
-    sendCompleted = pyqtSignal()
-    def __init__(self, sendListWidget, completedTableWidget):
+    sendCompleted = pyqtSignal(list)
+    def __init__(self, sendListWidget):
         super().__init__()
         self.__sendListWidget = sendListWidget
-        self.__completedTableWidget = completedTableWidget
 
     def start(self):
-        __DLL_SERVICE__.SelectSendDllFilePath(self.__sendListWidget, self.__completedTableWidget)
-        self.sendCompleted.emit()
+        sendFiles = __DLL_SERVICE__.SelectSendDllFilePath(self.__sendListWidget)
+        self.sendCompleted.emit(sendFiles)
 # ##### ===> SyncFileSenderWorker
 
 # ##### ===> SyncFileDownloadWorker
