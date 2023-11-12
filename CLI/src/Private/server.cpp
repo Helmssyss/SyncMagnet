@@ -16,7 +16,6 @@
 
 Server::Server() {
     setlocale(LC_ALL, "Turkish");
-    WSADATA wsaData;
     TCHAR getName[MAX_COMPUTERNAME_LENGTH + 1];
     DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
 
@@ -34,11 +33,19 @@ void Server::Setup() {
     const int port = 1881;
     const std::string ip = GetIPv4();
 
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
     ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
-
     ServerAddr.sin_family = AF_INET;
     inet_pton(AF_INET, ip.c_str(), &(ServerAddr.sin_addr));
     ServerAddr.sin_port = htons(port);
+    TCHAR getName[MAX_COMPUTERNAME_LENGTH + 1];
+    DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
+
+    if (GetUserName(getName, &size)) {
+        std::string userName(getName, getName + size - 1);
+        PcUserName = userName;
+        CreateSaveFilePathFolder();
+    }
 
     bind(ServerSocket, (sockaddr*)&ServerAddr, sizeof(ServerAddr));
     listen(ServerSocket, 1);
@@ -112,20 +119,21 @@ std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
 }
 
 void Server::SendClientFile(std::string& inputFile, char* buffer, const int& bufferSize) {
-    const int fileChunkSize = 4096;
+    short fileNameCount = 0;
     std::ifstream file(inputFile, std::ios::binary);
     file.seekg(0, std::ios::end);
     const unsigned long fileSize = file.tellg();
     file.close();
 
-    int counter = 0;
-    std::vector<std::string> str = FileMessageParse(inputFile, counter, '\\');
-    std::string fileNameSize;
+    std::vector<std::string> str = FileMessageParse(inputFile, fileNameCount, '/');
+    std::string firstFileContent;
     const std::string seperator = "|:FILE:|";
-    fileNameSize.assign(seperator + str[counter] + seperator + std::to_string(fileSize) + seperator);
-    send(ClientSocket, fileNameSize.c_str(), fileNameSize.length(), 0);
+    firstFileContent = seperator + str[fileNameCount] + seperator + std::to_string(fileSize) + seperator;
+    Sleep(10);
+    send(ClientSocket, firstFileContent.c_str(), strlen(firstFileContent.c_str()), 0);
     Sleep(10);
     send(ClientSocket, S_FILE_CAME, strlen(S_FILE_CAME), 0);
+    Sleep(10);
     
     bool run = true;
     while (run) {
@@ -137,15 +145,16 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
             file.seekg(0, std::ios::beg);
             int bytesSent = 0;
             int bytesToSend = 0;
-            char* fileBuffer = new char[fileChunkSize];
+            char* fileBuffer = new char[FILE_CHUNK_SIZE];
 
             while (bytesSent < fileSize) {
-                if (fileSize - bytesSent >= fileChunkSize)
-                    bytesToSend = fileChunkSize;
+                if (fileSize - bytesSent >= FILE_CHUNK_SIZE)
+                    bytesToSend = FILE_CHUNK_SIZE;
                 else
                     bytesToSend = fileSize - bytesSent;
                 file.read(fileBuffer, bytesToSend);
                 const std::string sendFile = std::string(fileBuffer, bytesToSend);
+                Sleep(5);
                 send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
                 bytesSent += bytesToSend;
                 console::UploadFileDisplay(bytesSent, fileSize);
@@ -157,8 +166,8 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     }
     console::CompleteUploadFileDisplay(fileSize);
     Sleep(10);
-    send(ClientSocket, S_FILE_SEND_END, strlen(S_FILE_SEND_END), 0);
-    memset(buffer, 0, sizeof(buffer));
+    send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
+    // memset(buffer, 0, sizeof(buffer));
 }
 
 void Server::HandleFileProcess(char* &buffer, int &bufferSize, bool saveMultipleFile) {
@@ -180,20 +189,22 @@ void Server::HandleFileProcess(char* &buffer, int &bufferSize, bool saveMultiple
 
         }else {
             if (input == "y" || input == "Y") {
-                send(ClientSocket, NEXT, strlen(NEXT), 0);
                 std::vector<std::pair<std::string, std::string>> resultMap = MultipleFileMessageParse(buffer);
-                for (const auto& pair : resultMap)
-                    SaveFileData(std::stoi(pair.first), pair.second.c_str(), true);
+                for (const auto& pair : resultMap){
+                    send(ClientSocket, NEXT, strlen(NEXT), 0);
+                    SaveFileData(std::stoi(pair.first), pair.second.c_str());
+                }
 
                 console::AlertMessage("Saved\a");
                 isAccepted = true;
                 Sleep(10);
-                send(ClientSocket, C_FILE_SEND_END, strlen(C_FILE_SEND_END), 0);
+                send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
 
             }else if (input == "n" || input == "N") {
                 send(ClientSocket, DECLINE, strlen(DECLINE), 0);
                 console::AlertMessage("Ignored");
                 isAccepted = true;
+                memset(buffer, 0, sizeof(buffer));
             }
         }
     }
@@ -207,8 +218,9 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
 
         buffer[bytesReceived] = '\0';
         if (strcmp(buffer, C_FILE_SEND) == 0) {
-            memset(buffer, 0, bufferSize);
+            memset(buffer, 0, sizeof(buffer));
             send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
+            Sleep(10);
             recv(ClientSocket, buffer, bufferSize, 0);
             bufferSize = std::stoi(FileMessageParse(buffer)[0]);
             console::GetFileAlertMessage(FileMessageParse(buffer)[1].c_str(), bufferSize);
@@ -217,8 +229,9 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
             run = false;
         
         }else if (strcmp(buffer, C_MULTIPLE_FILE_SEND) == 0) {
-            memset(buffer, 0, bufferSize);
+            memset(buffer, 0, sizeof(buffer));
             send(ClientSocket, OK_SEND, strlen(OK_SEND), 0);
+            Sleep(10);
             recv(ClientSocket, buffer, bufferSize, 0);
             std::vector<std::pair<std::string, std::string>> resultMap = MultipleFileMessageParse(buffer);
             for (const auto& pair : resultMap)
@@ -231,26 +244,25 @@ void Server::HandleFileTransfer(char* buffer, int& bufferSize) {
     }
 }
 
-void Server::SaveFileData(const int& bufferSize, const char* fileName,bool allowMultiple) {
+void Server::SaveFileData(const int& bufferSize, const char* fileName) {
     std::ofstream file;
     file.open("C:/Users/" + PcUserName + "/Documents/SyncMagnetSave/" + fileName, std::ios::binary);
     char* dynamicBuffer = new char[bufferSize];
     int readBytes = 0;
+    
     while (readBytes < bufferSize) {
         int recvData = recv(ClientSocket, (dynamicBuffer + readBytes), (bufferSize - readBytes), 0);
         readBytes += recvData;
         file.write((dynamicBuffer + readBytes - recvData), recvData);
         console::DownloadFileDisplay(readBytes, bufferSize);
     }
+
     printf("\n");
     file.close();
     delete[] dynamicBuffer;
-
-    if (allowMultiple)
-        send(ClientSocket, "NEXT", strlen("NEXT"), 0);
 }
 
-std::vector<std::string> Server::FileMessageParse(std::string message, int& msgLen, const char seperator) {
+std::vector<std::string> Server::FileMessageParse(std::string message, short& msgLen, const char seperator) {
     std::stringstream sstream;
     std::string temp;
     std::vector<std::string> resultVector;
@@ -287,8 +299,9 @@ std::vector<std::pair<std::string, std::string>> Server::MultipleFileMessagePars
         }
     }
     std::vector<std::pair<std::string, std::string>> resultVector(resultMap.begin(), resultMap.end());
-    std::sort(resultVector.begin(), resultVector.end(), [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) {
-        return std::stoi(a.first) > std::stoi(b.first);
+    std::sort(resultVector.begin(), resultVector.end(),
+        [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) {
+            return std::stoi(a.first) > std::stoi(b.first);
         });
     return resultVector;
 }
@@ -336,15 +349,15 @@ void Server::CreateSaveFilePathFolder() const {
 
     if (!FolderExists(folderPath.c_str())) {
         if (CreateDirectoryW(folderPath.c_str(), NULL)) {
-            std::wcout << L"Klasör başarıyla oluşturuldu: " << folderPath << std::endl;
+            std::wcout << L"Folder created successfully: " << folderPath << std::endl;
 
         }else {
             DWORD error = GetLastError();
             if (error == ERROR_ALREADY_EXISTS) {
-                std::wcout << L"Klasör zaten mevcut: " << folderPath << std::endl;
+                std::wcout << L"Folder already exists: " << folderPath << std::endl;
 
             }else {
-                std::wcerr << L"Klasör oluşturma hatası (" << error << L"): " << folderPath << std::endl;
+                std::wcerr << L"Folder creation error (" << error << L"): " << folderPath << std::endl;
             }
         }
     }

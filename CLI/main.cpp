@@ -7,7 +7,7 @@ int main(int argc, char* *argv) {
 
 	server->Setup();
 	server->Start();
-
+	
 	delete server;
 	return 0;
 }
