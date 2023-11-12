@@ -1,3 +1,16 @@
+## (Desktop) v0.0.6.4 - 12.11.2023
+### New Features
+ - Loading screen created. Can now see which file uploaded.
+
+### Bug Fix
+ - Critical bug in sending multiple and single files has been resolved.
+ - Connection processes are synchronized with loading screen.
+ - User based errors that may occur have been resolved.
+### TODO
+- [ ] Desktop application will be released in v0.1.0
+- [ ] The connection to the server is not interrupted when the desktop application is closed. needs to be solved
+
+---
 ## (Desktop) v0.0.6.3 - 27.10.2023
 ### New Features
  - Battery percentage in real time
