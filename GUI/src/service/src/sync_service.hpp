@@ -19,7 +19,7 @@
 #define FILE_SEND_END           "FILE_SEND_END"
 #define C_MULTIPLE_FILE_SEND    "C_MULTIPLE_FILE_SEND"
 #define C_FILE_SEND             "C_FILE_SEND"
-#define FILE_CHUNK_SIZE         4096     
+#define FILE_CHUNK_SIZE         4096
 
 using namespace std;
 
@@ -66,3 +66,4 @@ SYNCAPI inline int GetCurrentTotalDownloadFileSize() { return downloadTotalFileS
 SYNCAPI inline bool GetSendFinishedState() { return sendFinished; }
 SYNCAPI inline bool GetIsLoadFile() { return isLoadFile; }
 SYNCAPI inline bool CanGetDeviceState() { return isCanGetDeviceState; }
+SYNCAPI void GetChangeLog();

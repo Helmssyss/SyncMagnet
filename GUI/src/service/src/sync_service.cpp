@@ -1,7 +1,8 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "./sync_service.hpp"
-#include "./3rdParty/pugixml.hpp"
+#include "./sync_http_client.hpp"
+#include "./3rdParty/XMLib/pugixml.hpp"
 
 #include <string>
 #include <stdio.h>
@@ -316,4 +317,9 @@ SYNCAPI void CloseServer() {
     WSACleanup();
     std::cout << "server kapandi" << std::endl;
     isCanGetDeviceState = false;
+}
+
+SYNCAPI void GetChangeLog(){
+    HttpGetRequest(CHANGELOG);
+    Changelog();
 }

@@ -30,6 +30,7 @@ class ServerWindow(QMainWindow):
         self.isBack = False
         self.run = True
         self.syncMagnetDllService = dllService
+        self.syncMagnetDllService.GetChangeLog()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setupUi(self)
@@ -596,8 +597,7 @@ class ServerWindow(QMainWindow):
         self.verticalSpacer_2 = QSpacerItem(20, 51, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.verticalLayout_10.addItem(self.verticalSpacer_2)
 
-        self.changelogTextEdit = QPlainTextEdit(self.page_home)
-        self.changelogTextEdit.setObjectName(u"plainTextEdit")
+        self.changelogTextEdit = QTextEdit(self.page_home)
         self.changelogTextEdit.setMinimumSize(QSize(200, 200))
         self.changelogTextEdit.setStyleSheet(SyncStyle.serverPageChangelogTextEdit)
         self.changelogTextEdit.setReadOnly(True)
@@ -882,6 +882,7 @@ class ServerWindow(QMainWindow):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Sync Magnet", None))
+        self.readChangelog()
         self.label_title_bar_top.setText(QCoreApplication.translate("MainWindow", u"Sync Magnet", None))
         self.btn_minimize.setToolTip(QCoreApplication.translate("MainWindow", u"Minimize", None))
         self.btn_maximize_restore.setToolTip(QCoreApplication.translate("MainWindow", u"Maximize", None))
@@ -895,8 +896,6 @@ class ServerWindow(QMainWindow):
         self.uploadMenuButton.setText(QCoreApplication.translate("MainWindow", u"      UPLOAD", None))
         self.downloadButton.setText(QCoreApplication.translate("MainWindow", u"DOWNLOAD", None))
         self.uploadButton.setText(QCoreApplication.translate("MainWindow", u"UPLOAD", None))
-        self.changelogTextEdit.setPlainText(QCoreApplication.translate("MainWindow", u"asdqweqweqewqeqe", None))
-        self.changelogTextEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"zxczxczxc", None))
         self.openDownloadFolderButton.setText(QCoreApplication.translate("MainWindow", u"Open Download Folder", None))
         ___qtablewidgetitem = self.downloadedFilesTable.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText("File Size")
@@ -923,6 +922,11 @@ class ServerWindow(QMainWindow):
             elif event.type() == QEvent.MouseButtonRelease:
                 self.offset = None
         return super().eventFilter(source, event)
+
+    def readChangelog(self):
+        with open(r".\CHANGELOG.md","r",encoding="utf-8") as mdFile:
+            self.changelogTextEdit.setMarkdown(mdFile.read())
+        os.remove(r".\CHANGELOG.md")
 
     def connectedButtons(self):
         self.homeMenuButton.clicked.connect(lambda: self.goHomePage())

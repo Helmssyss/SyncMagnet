@@ -271,15 +271,16 @@ class SyncStyle:
 		QHeaderView::section:vertical{border: 1px solid rgb(44, 49, 60);}
 	"""
     serverPageChangelogTextEdit = """
-		QPlainTextEdit {
+		QTextEdit {
 			background-color: rgb(27, 29, 35);
 			border-radius: 5px;
 			padding: 10px;
+            selection-background-color: rgb(57, 65, 80);
 		}
-		QPlainTextEdit:hover {
+		QTextEdit:hover {
 			border: 2px solid rgb(64, 71, 88);
 		}
-		QPlainTextEdit:focus {
+		QTextEdit:focus {
 			border: 2px solid rgb(91, 101, 124);
 		}
 	"""
@@ -571,6 +572,7 @@ class SyncStyle:
 		QListWidget{
 			border: 2px solid rgb(39, 44, 54);
 			border-radius: 10px;
+            color: white;
 		}
 		QListWidget::item{
 			padding: 10px;

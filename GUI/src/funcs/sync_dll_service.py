@@ -81,8 +81,8 @@ class SyncMagnetDllService():
     def GetDeviceBatteryStatus(self):
         return self.__magnetDll.GetDeviceBatteryStatusPerSecond()
 
-    def SetCanDeviceState(cls):
-        return cls.__magnetDll.SetCanDeviceState()
+    def SetCanDeviceState(self):
+        return self.__magnetDll.SetCanDeviceState()
     
     def formatSize(self,byte) -> str:
         """ Dosya boyutu birim dönüşümü """
@@ -101,3 +101,6 @@ class SyncMagnetDllService():
         else:
             sizegb = byte / (1024 ** 3)
             return f"{sizegb:.2f} GB"
+    
+    def GetChangeLog(self):
+        return self.__magnetDll.GetChangeLog()
