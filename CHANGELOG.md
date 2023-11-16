@@ -8,7 +8,7 @@
  - User based errors that may occur have been resolved.
 ### TODO
 - [ ] Desktop application will be released in v0.1.0
-- [ ] The connection to the server is not interrupted when the desktop application is closed. needs to be solved
+- [x] The connection to the server is not interrupted when the desktop application is closed. needs to be solved
 
 ---
 ## (Desktop) v0.0.6.3 - 27.10.2023
