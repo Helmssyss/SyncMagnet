@@ -1,3 +1,10 @@
+## (Android | Desktop) v0.0.6.5 - 17.11.2023
+### Bug fix
+ - Some fixes server side.
+ - Loading screen has been fixed for desktop.
+ - Added loading animation when transferring files from mobile to PC.
+
+---
 ## (Desktop) v0.0.6.4 - 12.11.2023
 ### New Features
  - Loading screen created. Can now see which file uploaded.
