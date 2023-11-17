@@ -12,7 +12,6 @@ from src.funcs.sync_workers     import SyncFileSenderWorker
 from src.funcs.sync_workers     import SyncProcessRunWorker
 from src.funcs.sync_workers     import SyncFileDownloadWorker
 from src.funcs.sync_workers     import SyncLoadFileListener
-from src.funcs.sync_workers     import ThrowSyncClose
 from src.pages.sync_load_page   import LoadWindow
 from src.widgets                import SyncListWidget
 from src.widgets                import SyncTableWidget
@@ -25,12 +24,12 @@ class ServerWindow(QMainWindow):
         
         self.isSelectAll = False
         self.isDownload = True
-        self.sendFileStartProcess = False
+        self.getFilestartProcess = False
         self.SAVE_FILE_THREAD = None
         self.isBack = False
         self.run = True
         self.syncMagnetDllService = dllService
-        self.syncMagnetDllService.GetChangeLog()
+        QThread.sleep(1)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setupUi(self)
@@ -635,14 +634,8 @@ class ServerWindow(QMainWindow):
         self.verticalLayout_6.addLayout(self.horizontalLayout)
 
         self.downloadedFilesTable = SyncTableWidget(self.downloadPage)
-        if (self.downloadedFilesTable.columnCount() < 2):
-            self.downloadedFilesTable.setColumnCount(2)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.downloadedFilesTable.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.downloadedFilesTable.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        if (self.downloadedFilesTable.rowCount() < 2):
-            self.downloadedFilesTable.setRowCount(2)
+        self.downloadedFilesTable.setColumnCount(2)
+        self.downloadedFilesTable.setRowCount(2)
             
         self.downloadedFilesTable.setObjectName(u"downloadedFilesTable")
         self.downloadedFilesTable.setEnabled(True)
@@ -759,14 +752,8 @@ class ServerWindow(QMainWindow):
         self.verticalLayout_13.addLayout(self.buttonManageHorizontalLayout1)
 
         self.completedFileTableWidget = SyncTableWidget(self.uploadPage)
-        if (self.completedFileTableWidget.columnCount() < 2):
-            self.completedFileTableWidget.setColumnCount(2)
-        __qtablewidgetitem4 = QTableWidgetItem()
-        self.completedFileTableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem4)
-        __qtablewidgetitem5 = QTableWidgetItem()
-        self.completedFileTableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem5)
-        if (self.completedFileTableWidget.rowCount() < 2):
-            self.completedFileTableWidget.setRowCount(2)
+        self.completedFileTableWidget.setColumnCount(2)
+        self.completedFileTableWidget.setRowCount(2)
         sizePolicy.setHeightForWidth(self.completedFileTableWidget.sizePolicy().hasHeightForWidth())
 
         palette2 = QPalette()
@@ -897,18 +884,11 @@ class ServerWindow(QMainWindow):
         self.downloadButton.setText(QCoreApplication.translate("MainWindow", u"DOWNLOAD", None))
         self.uploadButton.setText(QCoreApplication.translate("MainWindow", u"UPLOAD", None))
         self.openDownloadFolderButton.setText(QCoreApplication.translate("MainWindow", u"Open Download Folder", None))
-        ___qtablewidgetitem = self.downloadedFilesTable.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText("File Size")
-        ___qtablewidgetitem1 = self.downloadedFilesTable.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText("File Name")
-
+        self.downloadedFilesTable.setHorizontalHeaderLabels(["File Size", "File Name"])
+        self.completedFileTableWidget.setHorizontalHeaderLabels(["File Size", "File Name"])
         self.openFolderButton.setText(QCoreApplication.translate("MainWindow", u"Open Folder", None))
         self.selectAllButton.setText(QCoreApplication.translate("MainWindow", u"Select All", None))
         self.sendButton.setText(QCoreApplication.translate("MainWindow", u"Send", None))
-        ___qtablewidgetitem4 = self.completedFileTableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem4.setText("File Size")
-        ___qtablewidgetitem5 = self.completedFileTableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem5.setText("File Name")
 
         self.label_version.setText("v0.0.6.3")
 
@@ -926,7 +906,6 @@ class ServerWindow(QMainWindow):
     def readChangelog(self):
         with open(r".\CHANGELOG.md","r",encoding="utf-8") as mdFile:
             self.changelogTextEdit.setMarkdown(mdFile.read())
-        os.remove(r".\CHANGELOG.md")
 
     def connectedButtons(self):
         self.homeMenuButton.clicked.connect(lambda: self.goHomePage())
@@ -935,7 +914,7 @@ class ServerWindow(QMainWindow):
         self.downloadMenuButton.clicked.connect(lambda: self.goDownloadPage())
         self.downloadButton.clicked.connect(lambda: self.goDownloadPage())
         self.selectAllButton.clicked.connect(lambda: self.allSelectItemsButtonState())
-        self.sendButton.clicked.connect(lambda: self.sendFiles())
+        self.sendButton.clicked.connect(lambda: self.getFiles())
         self.btn_close.clicked.connect(lambda: self.closeApplication())
         self.btn_maximize_restore.clicked.connect(lambda: self.setMaximized())
         self.btn_minimize.clicked.connect(lambda: self.showMinimized())
@@ -968,23 +947,19 @@ class ServerWindow(QMainWindow):
             # print("Foreground")
 
     def closeApplication(self):
-        try:
-            self.run = False
-            self.isBack = True
-            self.appRunWorker.setRunState(False)
-            self.appRunWorker.disconnect()
-            self.getInfoWorker.setRunState(False)
-            self.getInfoWorker.disconnect()
-            self.downloadFileWorker.setRunState(False)
-            self.appRunThread.quit()
-            self.appRunThread.wait()
-            self.getInfoThread.quit()
-            self.getInfoThread.wait()
-            self.downloadFileThread.quit()
-            self.downloadFileThread.wait()
-            self.close()
-        finally:
-            raise ThrowSyncClose()
+        self.run = False
+        self.isBack = True
+        self.appRunWorker.setRunState(False)
+        self.getInfoWorker.setRunState(False)
+        self.downloadFileWorker.setRunState(False)
+        self.appRunThread.quit()
+        self.appRunThread.wait()
+        self.getInfoThread.quit()
+        self.getInfoThread.wait()
+        self.downloadFileThread.quit()
+        self.downloadFileThread.wait()
+        self.close()
+        self.syncMagnetDllService.ManageDllFinished()
 
     def setMaximized(self):
         if self.isMaximized():
@@ -1058,6 +1033,7 @@ class ServerWindow(QMainWindow):
         self.downloadFileWorker.moveToThread(self.downloadFileThread)
         self.downloadFileThread.started.connect(self.downloadFileWorker.start)
         self.downloadFileThread.start()
+        self.downloadFileWorker.onConnectDownload.connect(self.onDownloadWorkerCompleted)
         self.isDownload = True
         self.loadPageListener()
 
@@ -1158,7 +1134,7 @@ class ServerWindow(QMainWindow):
             self.sendFileListWidget.unSelectAllItems()
             self.isSelectAll = False
 
-    def sendFiles(self):
+    def getFiles(self):
         if len(self.sendFileListWidget.selectedItems()) > 0:
             if getattr(self, 'listener', None):
                 self.listener.setRunState(False)
@@ -1172,13 +1148,13 @@ class ServerWindow(QMainWindow):
             self.selectItemSendWorker = SyncFileSenderWorker(sendListWidget=self.sendFileListWidget)
             self.selectItemSendThread = QThread(self)
             self.selectItemSendWorker.moveToThread(self.selectItemSendThread)
-            self.selectItemSendWorker.sendCompleted.connect(self.onSendWorkerCompleted)
             self.selectItemSendThread.started.connect(self.selectItemSendWorker.start)
             self.selectItemSendThread.start()
+            self.selectItemSendWorker.sendCompleted.connect(self.onSendWorkerCompleted)
 
     @pyqtSlot(list)
-    def onSendWorkerCompleted(self,sendFiles: list):
-        for row, file_info in enumerate(sendFiles):
+    def onSendWorkerCompleted(self,getFiles: list):
+        for row, file_info in enumerate(getFiles):
             self.completedFileTableWidget.insertRow(row)
             size_item = QTableWidgetItem(self.syncMagnetDllService.formatSize(file_info[0]))
             size_item.setIcon(QIcon(":/16x16/assets/16x16/cil-check-alt.png"))
@@ -1196,6 +1172,22 @@ class ServerWindow(QMainWindow):
         self.downloadMenuButton.setEnabled(True)
         self.isSelectAll = False
         self.allSelectItemsButtonState()
+
+    @pyqtSlot(dict)
+    def onDownloadWorkerCompleted(self, param: dict):
+        if param['state']:
+            root = ET.parse(r".\MagnetManifest.xml")
+            getFiles = [file.attrib['file'] for file in root.findall(".//GetFile")]
+            for row, file_info in enumerate(getFiles):
+                print(row,"<---->" ,file_info)
+                if file_info not in param['dFiles']:
+                    self.downloadedFilesTable.insertRow(row)
+                    size_item = QTableWidgetItem(self.syncMagnetDllService.formatSize(os.path.getsize(os.path.join(self.label_top_info_1.text(),file_info))))
+                    size_item.setIcon(QIcon(":/16x16/assets/16x16/cil-check-alt.png"))
+                    name_item = QTableWidgetItem(file_info)
+                    self.downloadedFilesTable.setItem(row, 0, size_item)
+                    self.downloadedFilesTable.setItem(row, 1, name_item)
+            print("YÜKLEME İŞLEMİ BİTTİ TABLE WIDGET'A EKLENDİ")
 
     def toggleMenu(self, maxWidth, enable):
         isHidden = False

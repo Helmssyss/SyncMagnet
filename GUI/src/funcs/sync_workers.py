@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # ##### ===> LIBRARIES
-import typing
 import xml.etree.ElementTree    as ET
 from time                       import sleep
 from PyQt5.QtCore               import QObject
@@ -17,16 +16,10 @@ CACHE_DOWNLOAD_FILE = set()
 CACHE_UPLOAD_FILE = set()
 # ## => CONST
 
-# ##### ===> ThrowSyncClose
-class ThrowSyncClose(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-        __DLL_SERVICE__.ManageDllFinished()
-# ##### ===> ThrowSyncClose
-
 # ##### ===> SyncConnectWorker
 class SyncConnectWorker(QObject):
     connectStart = pyqtSignal(dict)
+        
     def start(self) -> None:
         __DLL_SERVICE__.ManageDllStarted()
         self.connectStart.emit({"isConnect": True, "this":__DLL_SERVICE__})
@@ -59,8 +52,8 @@ class SyncClientInfoWorker(QObject):
 
                 finally:
                     # print("SyncClientInfoWorker START")
-                    sleep(0.5)
-            sleep(0.5)
+                    sleep(0.6)
+            sleep(0.6)
 # ##### ===> SyncClientInfoWorker
 
 # ##### ===> SyncFileSenderWorker
@@ -77,6 +70,7 @@ class SyncFileSenderWorker(QObject):
 
 # ##### ===> SyncFileDownloadWorker
 class SyncFileDownloadWorker(QObject):
+    onConnectDownload = pyqtSignal(dict)
     def __init__(self) -> None:
         super().__init__()
         self.__runWorker = True
@@ -87,8 +81,9 @@ class SyncFileDownloadWorker(QObject):
     def start(self):
         while self.__runWorker:
             __DLL_SERVICE__.HandleFileTransfer()
+            self.onConnectDownload.emit({"state":__DLL_SERVICE__.GetIsDownloadCompletedFile(),"dFiles":CACHE_DOWNLOAD_FILE})
             # print("__DLL_SERVICE__.HandleFileTransfer()")
-            sleep(0.5)
+            sleep(0.6)
 # ##### ===> SyncFileDownloadWorker
 
 # ##### ===> SyncDownloadFileListener
@@ -109,7 +104,7 @@ class SyncLoadFileListener(QObject):
 
             if __DLL_SERVICE__.GetCurrentTotalDownloadFileSize() == 1:
                 self.connectShowLoadPage.emit(False)
-            sleep(0.5)
+            sleep(0.6)
 # ##### ===> SyncDownloadFileListener
 
 # ##### ===> SyncProcessRunWorker
@@ -129,44 +124,46 @@ class SyncProcessRunWorker(QObject):
                 self.isBackground.emit(False)
             else:
                 self.isBackground.emit(True)
-            sleep(0.5)
+            sleep(0.6)
 # ##### ===> SyncProcessRunWorker
 
 # ##### ===> SyncLoadPageCDWorker
 class SyncLoadPageCDWorker(QObject):
     connectCurrentLoadSize = pyqtSignal(int)
     connectCurrentLoadFileName = pyqtSignal(str)
-    def __init__(self,isDownload) -> None:
+    def __init__(self,) -> None:
         super().__init__()
         self.__runWorker = True
-        self.__isDownload = isDownload
 
     def setRunState(self, newState: bool) -> None:
         self.__runWorker = newState
 
     def start(self):
         while self.__runWorker:
-            fSize = __DLL_SERVICE__.GetCurrentDownloadFileSize()
-            self.connectCurrentLoadSize.emit(fSize)
-            root = ET.parse(r".\MagnetManifest.xml")
-            if self.__isDownload:
+            try:
+                fSize = __DLL_SERVICE__.GetCurrentDownloadFileSize()
+                self.connectCurrentLoadSize.emit(fSize)
+                root = ET.parse(r".\MagnetManifest.xml")
                 getDownloadFile = root.findall('.//GetFile')
+                getUploadFile = root.findall('.//SendFile')
                 if getDownloadFile:
                     for i in getDownloadFile:
                         file = i.attrib["file"]
                         if file not in CACHE_DOWNLOAD_FILE:
                             self.connectCurrentLoadFileName.emit(file)
                             CACHE_DOWNLOAD_FILE.add(file)
-            else:
-                getUploadFile = root.findall('.//SendFile')
+
                 if getUploadFile:
                     for j in getUploadFile:
                         file = j.attrib['file']
                         if file not in CACHE_UPLOAD_FILE:
                             self.connectCurrentLoadFileName.emit(file)
                             CACHE_UPLOAD_FILE.add(file)
-
-            sleep(0.5)
+            except Exception as E:
+                print("ERR: -> ",E)
+                continue
+            finally:
+                sleep(0.6)
 # ##### ===> SyncLoadPageCDWorker
 
 
@@ -185,10 +182,8 @@ class SyncCheckNetWorker(QObject):
             try:
                 response = requestGet("https://www.google.com")
                 response.raise_for_status()
-                print("İnternet bağlantısı mevcut.")
                 self.checkNet.emit(True)
             except RequestException:
-                print("İnternet bağlantısı yok.")
                 self.checkNet.emit(False)
             finally:
                 sleep(0.1)

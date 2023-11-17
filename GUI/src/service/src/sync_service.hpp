@@ -39,6 +39,7 @@ static char buffer[1024];
 static bool sendFinished;
 static bool isCanGetDeviceState;
 static bool isLoadFile;
+static bool isDownloadCompleted;
 
 vector<string> FileMessageParse(string message, short &msgLen = _LENGTH, const char seperator = '|');
 vector<pair<string, string>> MultipleFileMessageParse(string message);
@@ -65,5 +66,6 @@ SYNCAPI inline int GetCurrentDownloadFileSize() { return downloadFileSize; }
 SYNCAPI inline int GetCurrentTotalDownloadFileSize() { return downloadTotalFileSize; }
 SYNCAPI inline bool GetSendFinishedState() { return sendFinished; }
 SYNCAPI inline bool GetIsLoadFile() { return isLoadFile; }
+SYNCAPI inline bool GetIsDownloadCompletedFile() { return isDownloadCompleted; }
 SYNCAPI inline bool CanGetDeviceState() { return isCanGetDeviceState; }
 SYNCAPI void GetChangeLog();

@@ -110,7 +110,6 @@ class CheckNetWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def progressBarState(self,check: bool):
-        print(self.waitcount)
         if check and self.waitcount == 10:
             self.checkWorker.setRunState(False)
             self.checkThread.quit()

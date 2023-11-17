@@ -298,7 +298,9 @@ class SyncStyle:
 			background-color: rgb(35, 40, 49);
 			border: 2px solid rgb(43, 50, 61);
 		}
+	
 	"""
+    
     serverPageGithubButton = """
 		QPushButton {
 			border: none;

@@ -51,7 +51,7 @@ class LoadWindow(QWidget):
 
         QMetaObject.connectSlotsByName(Form)
 
-        self.currentDownloadSizeWorker = SyncLoadPageCDWorker(self.isDownload)
+        self.currentDownloadSizeWorker = SyncLoadPageCDWorker()
         self.currentDownloadSizeThread = QThread(self)
         self.currentDownloadSizeWorker.moveToThread(self.currentDownloadSizeThread)
         self.currentDownloadSizeThread.started.connect(self.currentDownloadSizeWorker.start)

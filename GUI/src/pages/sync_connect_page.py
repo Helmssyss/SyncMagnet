@@ -7,6 +7,8 @@ from PyQt5.QtWidgets          import QWidget
 from .sync_server_page        import ServerWindow
 from src                      import SyncConnectWorker
 from src.funcs.sync_style     import SyncStyle
+from socket                   import gethostbyname
+from socket                   import gethostname
 from webbrowser               import open as openWeb
 
 class ConnectWindow(QMainWindow):
@@ -66,7 +68,7 @@ QToolTip {
         self.closedButton.setIcon(icon1)
         self.titleLabel = QLabel(self.titleFrame)
         self.titleLabel.setObjectName(u"titleLabel")
-        self.titleLabel.setGeometry(QRect(50, 5, 101, 21))
+        self.titleLabel.setGeometry(QRect(50, 5, 113, 21))
         font = QFont()
         font.setFamily(u"Segoe UI")
         font.setPointSize(10)
@@ -115,7 +117,7 @@ QToolTip {
         self.versionLabel.setAlignment(Qt.AlignCenter)
         self.clientWaitLabel = QLabel(self.contentFrame)
         self.clientWaitLabel.setObjectName(u"clientWaitLabel")
-        self.clientWaitLabel.setGeometry(QRect(105, 210, 221, 31))
+        self.clientWaitLabel.setGeometry(QRect(105, 210, 221, 38))
         font3 = QFont()
         font3.setPointSize(10)
         font3.setBold(True)
@@ -172,8 +174,9 @@ QToolTip {
 
     def connectStart(self):
         self.startServerButton.setEnabled(False)
-        self.clientWaitLabel.setHidden(False)
         self.connectWorker = SyncConnectWorker()
+        self.clientWaitLabel.setText(f"Client Waiting...\n{gethostbyname(gethostname())}")
+        self.clientWaitLabel.setHidden(False)
         self.connectThread = QThread()
         self.connectWorker.moveToThread(self.connectThread)
         self.connectThread.started.connect(self.connectWorker.start)
@@ -183,7 +186,6 @@ QToolTip {
     @pyqtSlot(dict)
     def onConnected(self, param: dict[str,object]):
         if param['isConnect']:
-            print("clientIsConnected: ", param['isConnect'])
             serverPage = ServerWindow(__APPLICATION__=self.application,dllService= param["this"])
             serverPage.show()
             self.close()
@@ -193,5 +195,4 @@ QToolTip {
             self.connectWorker.connectStart.disconnect()
             self.connectThread.quit()
             self.connectThread.wait(1)
-            print("connectThread BAŞARIYLA SONLANDIRILDI")
         a0.accept()

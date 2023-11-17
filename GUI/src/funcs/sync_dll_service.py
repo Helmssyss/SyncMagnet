@@ -10,10 +10,6 @@ class SyncMagnetDllService():
     __magnetDll:ctypes.CDLL = None
     _clientName:str = ""
 
-    @staticmethod
-    def getAddress() -> str:
-        return gethostbyname(gethostname())
-
     def LoadMagnetDll(self) -> bool:
         """ Dll dosyasının varlığını kontrol et """
 
@@ -29,6 +25,7 @@ class SyncMagnetDllService():
         except FileNotFoundError:
             self.__magnetDll = ctypes.CDLL(name=self._dllPath,winmode=0)
         finally:
+            self.__magnetDll.GetChangeLog()
             self.__magnetDll.SetupServer(gethostbyname(gethostname()).encode())
             self.__magnetDll.StartServer()
 
@@ -73,6 +70,11 @@ class SyncMagnetDllService():
 
         return self.__magnetDll.GetIsLoadFile()
 
+    def GetIsDownloadCompletedFile(self):
+        """ dosya indirme bittiyse True, bitmediyse False """
+
+        return self.__magnetDll.GetIsDownloadCompletedFile()
+
     def CanGetDeviceState(self) -> None:
         """dosya gönderiliyor mu gönderiliyorsa True gönderilmiyorsa False"""
 
@@ -101,6 +103,3 @@ class SyncMagnetDllService():
         else:
             sizegb = byte / (1024 ** 3)
             return f"{sizegb:.2f} GB"
-    
-    def GetChangeLog(self):
-        return self.__magnetDll.GetChangeLog()
