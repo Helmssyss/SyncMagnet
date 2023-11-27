@@ -1,5 +1,18 @@
+## (Android) v0.0.6.6 - 27.11.2023
+## New Features
+ - Listening to music, you can see and select other music.
+ - The same song can be listened to over and over again.
+ - Added folder creation.
+ - Added options for the view of files and folders (Grid and List)
+ - Added filter for files and folders.
+
+### Bug Fix
+ - The music page is now more performance.
+ - The error where the mobile application became unresponsive on the desktop when exited after connecting has been resolved.
+
+---
 ## (Android | Desktop) v0.0.6.5 - 17.11.2023
-### Bug fix
+### Bug Fix
  - Some fixes server side.
  - Loading screen has been fixed for desktop.
  - Added loading animation when transferring files from mobile to PC.
