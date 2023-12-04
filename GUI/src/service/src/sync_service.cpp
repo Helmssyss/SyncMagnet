@@ -1,7 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "./sync_service.hpp"
-#include "./sync_http_client.hpp"
 #include "./3rdParty/XMLib/pugixml.hpp"
 
 #include <string>
@@ -54,7 +53,7 @@ std::vector<std::pair<std::string, std::string>> MultipleFileMessageParse(std::s
             resultMap[_key] = _value;
         }
     }
-    
+
     std::vector<std::pair<std::string, std::string>> resultVector(resultMap.begin(), resultMap.end());
     std::sort(resultVector.begin(), resultVector.end(),
         [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) {
@@ -121,9 +120,11 @@ bool FileExists(const wchar_t* filePath){
     return (attributes != INVALID_FILE_ATTRIBUTES && !(attributes & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-void GetClientDevice(char* buffer, const int &buffSize) {
+void GetClientDevice(char* buffer) {
+    
     send(ClientSocket, DEVICE, strlen(DEVICE), 0);
-    const int8_t recvData = recv(ClientSocket, buffer, buffSize, 0);
+    recv(ClientSocket, buffer, 1024, 0);
+    std::cout << buffer << std::endl;
     const std::string deviceName = FileMessageParse(buffer)[1];
     const int8_t deviceNameLength = std::stoi(FileMessageParse(buffer)[0]);
     const std::string resultDeviceNameData = deviceName.substr(0, deviceNameLength);
@@ -136,57 +137,59 @@ void GetClientDevice(char* buffer, const int &buffSize) {
 }
 
 void SendClientFile(const char *inputFile, char* buffer, const int &bufferSize) {
-    short fileNameCount = 0;
-    std::ifstream file(inputFile, std::ios::binary);
-    file.seekg(0, std::ios::end);
-    const unsigned long fileSize = file.tellg();
-    downloadTotalFileSize = fileSize;
-    file.close();
-
-    std::vector<std::string> str = FileMessageParse(inputFile, fileNameCount, '/');
-    std::string firstFileContent;
-    const std::string seperator = "|:FILE:|";
-    firstFileContent = seperator + str[fileNameCount] + seperator + std::to_string(fileSize) + seperator;
-    if(fileSize < 130000)
-        Sleep(1000);
-    else
+    try{
+        std::ifstream file(inputFile, std::ios::binary);
+        file.seekg(0, std::ios::end);
+        const unsigned long fileSize = file.tellg();
+        downloadTotalFileSize = fileSize;
+        file.close();
+        
+        short fileNameCount = 0;
+        const std::vector<std::string> parsedFileName = FileMessageParse(inputFile, fileNameCount, '/');
+        const std::string seperator = "|:MAGNET:|";
+        const std::string sendDataPart = seperator + parsedFileName[fileNameCount] + seperator + std::to_string(fileSize) + seperator;
+        
+        if(fileSize < 100000)
+            Sleep(1000);
+        else
+            Sleep(10);
+        
+        send(ClientSocket, sendDataPart.c_str(), strlen(sendDataPart.c_str()), 0);
         Sleep(10);
-    send(ClientSocket, firstFileContent.c_str(), strlen(firstFileContent.c_str()), 0);
-    Sleep(10);
-    send(ClientSocket, S_FILE_CAME, strlen(S_FILE_CAME), 0);
-    Sleep(10);
+        send(ClientSocket, S_FILE_CAME, strlen(S_FILE_CAME), 0);
 
-    bool run = true;
-    while (run) {
-        int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
-        buffer[bytesReceived] = '\0';
+        bool run = true;
+        while (run) {
+            int bytesReceived = recv(ClientSocket, buffer, bufferSize, 0);
+            buffer[bytesReceived] = '\0';
 
-        if (strcmp(buffer, S_FILE_SEND) == 0) {
-            // memset(buffer, 0, sizeof(buffer));
-            file.open(inputFile, std::ios::binary);
-            file.seekg(0, std::ios::beg);
-            int bytesSent = 0;
-            int bytesToSend = 0;
-            char* fileBuffer = new char[FILE_CHUNK_SIZE];
+            if (strcmp(buffer, S_FILE_SEND) == 0) {
+                file.open(inputFile, std::ios::binary);
+                file.seekg(0, std::ios::beg);
+                int bytesSent = 0;
+                int bytesToSend = 0;
+                char* fileBuffer = new char[FILE_CHUNK_SIZE];
 
-            while (bytesSent < fileSize) {
-                if (fileSize - bytesSent >= FILE_CHUNK_SIZE)
-                    bytesToSend = FILE_CHUNK_SIZE;
-                else
-                    bytesToSend = fileSize - bytesSent;
-                file.read(fileBuffer, bytesToSend);
-                const std::string sendFile = std::string(fileBuffer, bytesToSend);
-                Sleep(5);
-                send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
-                bytesSent += bytesToSend;
-                // printf("\r%i/%i", bytesSent, fileSize);
-                downloadFileSize = bytesSent;
+                while (bytesSent < fileSize) {
+                    if (fileSize - bytesSent >= FILE_CHUNK_SIZE)
+                        bytesToSend = FILE_CHUNK_SIZE;
+                    else
+                        bytesToSend = fileSize - bytesSent;
+                    file.read(fileBuffer, bytesToSend);
+                    const std::string sendFile = std::string(fileBuffer, bytesToSend);
+                    // Sleep(1);
+                    send(ClientSocket, sendFile.c_str(), sendFile.length(), 0);
+                    bytesSent += bytesToSend;
+                    downloadFileSize = bytesSent;
+                }
+                // printf("\nDosya Yuklendi\n");
+                run = false;
+                file.close();
+                delete[] fileBuffer;
             }
-            // printf("\nDosya Yuklendi\n");
-            run = false;
-            file.close();
-            delete[] fileBuffer;
-        }
+        }   
+    }catch(const std::exception& e){
+        std::cerr << "SendClientFile -> " << e.what() << '\n';
     }
 }
 
@@ -208,29 +211,27 @@ void SaveFileData(const int& bufferSize, const char* fileName){
 
     file.close();
     delete[] dynamicBuffer;
+    memset(buffer, 0, sizeof(buffer)); // 
 }
 
 void HandleFileProcess(char* buffer, const int &bufferSize, bool allowMultiple){
     isLoadFile = true;
-
+    
     if (!allowMultiple){
         send(ClientSocket, SINGLE, strlen(SINGLE), 0);
         SaveFileData(bufferSize, FileMessageParse(buffer)[1].c_str());
         GetCurrentFileCompleted(FileMessageParse(buffer)[1].c_str(),true);
         isDownloadCompleted = true;
-        // std::cout << "Saved" << std::endl;
     }else{
         std::vector<std::pair<std::string, std::string>> resultMap = MultipleFileMessageParse(buffer);
         for (const auto& pair : resultMap){
             isDownloadCompleted = false;
             send(ClientSocket, NEXT, strlen(NEXT), 0);
-            // std::cout << pair.second.c_str() << "<------>" << std::stoi(pair.first) << std::endl;
             SaveFileData(std::stoi(pair.first), pair.second.c_str());
             GetCurrentFileCompleted(pair.second.c_str(),true);
             isDownloadCompleted = true;
         }
-        // std::cout << "Saved Multiple File" << std::endl;
-        Sleep(10);
+        Sleep(1);
     }
 }
 
@@ -258,11 +259,12 @@ SYNCAPI void StartServer() {
     try{
         int ClientAddrSize = sizeof(ClientAddr);
         ClientSocket = accept(ServerSocket, (sockaddr*)&ClientAddr, &ClientAddrSize);
-        GetClientDevice(buffer, 1024);
+        GetClientDevice(buffer);
         isCanGetDeviceState = true;
         
     }catch(const std::exception& e){
-        // std::cerr << e.what() << '\n';
+        std::cerr << "StartServer -> " << e.what() << '\n';
+        CloseServer();
     }
 }
 
@@ -270,11 +272,10 @@ SYNCAPI void SendSelectFiles(const char* *files, int fileCount) {
     sendFinished = false;
     isCanGetDeviceState = false;
     isLoadFile = true;
-    // std::cout << "SendSelectFiles Basladi" << std::endl;
     for (int i = 0; i < fileCount; i++){
         SendClientFile(files[i], buffer, bufferSize);
         Sleep(1000);
-        GetCurrentFileCompleted(files[i]); // 
+        GetCurrentFileCompleted(files[i]);
     }
     downloadFileSize = 1;
     downloadTotalFileSize = 1;
@@ -292,7 +293,6 @@ SYNCAPI void HandleFileTransfer(){
         ioctlsocket(ClientSocket, FIONREAD, &availableData);
         if (availableData > 0){
             int bytesReceived = recv(ClientSocket, buffer, 1024, 0);
-            // std::cout << "HandleFileTransfer recv: " << buffer << std::endl;
             buffer[bytesReceived] = '\0';
             if (strcmp(buffer, C_FILE_SEND) == 0){
                 memset(buffer, 0, sizeof(buffer));
@@ -309,13 +309,13 @@ SYNCAPI void HandleFileTransfer(){
                 HandleFileProcess(buffer, 1024, true);
             }
             send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
-            // std::cout << "isCanGetDeviceState -> " << isCanGetDeviceState << std::endl;
             downloadTotalFileSize = 1;
             downloadFileSize = 1;
         }
         isLoadFile = false;
     }catch(const std::exception& e){
-        // std::cerr << "BIR HATA OLUSTU ----> " << e.what() << '\n';
+        std::cerr  << "HandleFileTransfer -> " << e.what() << '\n';
+        CloseServer();
     }
 }
 
@@ -327,9 +327,5 @@ SYNCAPI void CloseServer() {
     WSACleanup();
     std::cout << "server kapandi" << std::endl;
     isCanGetDeviceState = false;
-}
-
-SYNCAPI void GetChangeLog(){
-    HttpGetRequest(CHANGELOG);
-    Changelog();
+    exit(0);
 }
