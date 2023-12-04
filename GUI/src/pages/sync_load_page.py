@@ -59,19 +59,17 @@ class LoadWindow(QWidget):
         self.currentDownloadSizeWorker.connectCurrentLoadSize.connect(self.manage)
         self.currentDownloadSizeWorker.connectCurrentLoadFileName.connect(self.appendListWidget)
 
-    @pyqtSlot(int)
-    def manage(self, size: int):
+    @pyqtSlot(dict)
+    def manage(self, param: dict):
         self.totalDownloadLabel.setGeometry(QRect(120, 30, 181, 31))
         self.progressBar.setMaximum(self.dll.GetCurrentTotalDownloadFileSize())
-        self.progressBar.setValue(size)
-        fSize = self.dll.GetCurrentDownloadFileSize()
-        tFSize = self.dll.GetCurrentTotalDownloadFileSize()
-        if fSize != 1 and tFSize != 1:
-            self.totalDownloadLabel.setText(f"""<html><head/><body><p><span style="font-size:16pt;">{self.dll.formatSize(size)} </span><span style="font-size:16pt; vertical-align:super;">{self.dll.formatSize(self.dll.GetCurrentTotalDownloadFileSize())}</span></p></body></html>""")
-        if size == 1:
+        self.progressBar.setValue(param['fileSize'])
+        if param['fileTotalSize'] != 1 and param['fileSize'] != 1:
+            self.totalDownloadLabel.setText(f"""<html><head/><body><p><span style="font-size:16pt;">{self.dll.formatSize(param['fileSize'])} </span><span style="font-size:16pt; vertical-align:super;">{self.dll.formatSize(param['fileTotalSize'])}</span></p></body></html>""")
+        if param['fileSize']  == 1:
             self.totalDownloadLabel.setGeometry(QRect(100, 30, 161, 31))
             self.totalDownloadLabel.setText("""<html><span style="font-size:16pt;">Done</span></html>""")
-        if fSize == 1 and tFSize == 1:
+        if param['fileSize'] == 1 and param['fileTotalSize'] == 1:
             self.currentDownloadSizeWorker.setRunState(False)
             self.currentDownloadSizeThread.quit()
             self.currentDownloadSizeThread.wait()

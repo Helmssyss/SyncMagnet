@@ -22,7 +22,7 @@ class SyncConnectWorker(QObject):
         
     def start(self) -> None:
         __DLL_SERVICE__.ManageDllStarted()
-        self.connectStart.emit({"isConnect": True, "this":__DLL_SERVICE__})
+        self.connectStart.emit({"isConnect": True, "service":__DLL_SERVICE__})
 # ##### ===> SyncConnectWorker
 
 # ##### ===> SyncClientInfoWorker
@@ -47,7 +47,7 @@ class SyncClientInfoWorker(QObject):
                     __DLL_SERVICE__.GetDeviceBatteryStatus()
 
                 except Exception as E:
-                    # print("SyncClientInfoWorker ERROR: ",E)
+                    print("SyncClientInfoWorker ERROR: ",E)
                     pass
 
                 finally:
@@ -83,7 +83,7 @@ class SyncFileDownloadWorker(QObject):
             __DLL_SERVICE__.HandleFileTransfer()
             self.onConnectDownload.emit({"state":__DLL_SERVICE__.GetIsDownloadCompletedFile(),"dFiles":CACHE_DOWNLOAD_FILE})
             # print("__DLL_SERVICE__.HandleFileTransfer()")
-            sleep(0.6)
+            sleep(0.1)
 # ##### ===> SyncFileDownloadWorker
 
 # ##### ===> SyncDownloadFileListener
@@ -124,12 +124,12 @@ class SyncProcessRunWorker(QObject):
                 self.isBackground.emit(False)
             else:
                 self.isBackground.emit(True)
-            sleep(0.6)
+            sleep(0.1)
 # ##### ===> SyncProcessRunWorker
 
 # ##### ===> SyncLoadPageCDWorker
 class SyncLoadPageCDWorker(QObject):
-    connectCurrentLoadSize = pyqtSignal(int)
+    connectCurrentLoadSize = pyqtSignal(dict)
     connectCurrentLoadFileName = pyqtSignal(str)
     def __init__(self,) -> None:
         super().__init__()
@@ -142,7 +142,8 @@ class SyncLoadPageCDWorker(QObject):
         while self.__runWorker:
             try:
                 fSize = __DLL_SERVICE__.GetCurrentDownloadFileSize()
-                self.connectCurrentLoadSize.emit(fSize)
+                ftSize = __DLL_SERVICE__.GetCurrentTotalDownloadFileSize()
+                self.connectCurrentLoadSize.emit({"fileSize":fSize,"fileTotalSize":ftSize})
                 root = ET.parse(r".\MagnetManifest.xml")
                 getDownloadFile = root.findall('.//GetFile')
                 getUploadFile = root.findall('.//SendFile')
@@ -163,7 +164,7 @@ class SyncLoadPageCDWorker(QObject):
                 print("ERR: -> ",E)
                 continue
             finally:
-                sleep(0.6)
+                sleep(0.1)
 # ##### ===> SyncLoadPageCDWorker
 
 
@@ -180,7 +181,7 @@ class SyncCheckNetWorker(QObject):
     def checkStart(self):
         while self.__run:
             try:
-                response = requestGet("https://www.google.com")
+                response = requestGet("https://www.google.com",timeout=50)
                 response.raise_for_status()
                 self.checkNet.emit(True)
             except RequestException:

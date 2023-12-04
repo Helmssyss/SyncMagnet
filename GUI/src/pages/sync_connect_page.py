@@ -10,6 +10,7 @@ from src.funcs.sync_style     import SyncStyle
 from socket                   import gethostbyname
 from socket                   import gethostname
 from webbrowser               import open as openWeb
+from requests                 import Session
 
 class ConnectWindow(QMainWindow):
     def __init__(self,application: QApplication) -> None:
@@ -182,11 +183,15 @@ QToolTip {
         self.connectThread.started.connect(self.connectWorker.start)
         self.connectThread.start()
         self.connectWorker.connectStart.connect(self.onConnected)
+        with Session() as session:
+            r = session.get("https://raw.githubusercontent.com/Helmssyss/SyncMagnet/main/CHANGELOG.md")
+            with open(r".\CHANGELOG.md","w") as mdFile:
+                mdFile.write(r.text)
 
     @pyqtSlot(dict)
     def onConnected(self, param: dict[str,object]):
         if param['isConnect']:
-            serverPage = ServerWindow(__APPLICATION__=self.application,dllService= param["this"])
+            serverPage = ServerWindow(__APPLICATION__=self.application,dllService=param["service"])
             serverPage.show()
             self.close()
 

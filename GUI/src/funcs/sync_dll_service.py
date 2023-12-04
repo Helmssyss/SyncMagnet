@@ -6,9 +6,10 @@ from src.widgets.sync_list_widget  import SyncListWidget
 
 class SyncMagnetDllService():
     currentfileIsSending = None
-    _dllPath:str = r".\src\service\DLL\sync_service.dll"
-    __magnetDll:ctypes.CDLL = None
     _clientName:str = ""
+    def __init__(self) -> None:
+        self._dllPath:str = r".\sync_service.dll" # /src/service/DLL
+        self.__magnetDll:ctypes.CDLL = None
 
     def LoadMagnetDll(self) -> bool:
         """ Dll dosyasının varlığını kontrol et """
@@ -25,7 +26,6 @@ class SyncMagnetDllService():
         except FileNotFoundError:
             self.__magnetDll = ctypes.CDLL(name=self._dllPath,winmode=0)
         finally:
-            self.__magnetDll.GetChangeLog()
             self.__magnetDll.SetupServer(gethostbyname(gethostname()).encode())
             self.__magnetDll.StartServer()
 
@@ -83,9 +83,9 @@ class SyncMagnetDllService():
     def GetDeviceBatteryStatus(self):
         return self.__magnetDll.GetDeviceBatteryStatusPerSecond()
 
-    def SetCanDeviceState(self):
-        return self.__magnetDll.SetCanDeviceState()
-    
+    def SetCanDeviceState(self,state: bool):
+        return self.__magnetDll.SetCanDeviceState(state)
+
     def formatSize(self,byte) -> str:
         """ Dosya boyutu birim dönüşümü """
 

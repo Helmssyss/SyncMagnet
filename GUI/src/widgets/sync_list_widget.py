@@ -20,7 +20,11 @@ class SyncListWidget(QListWidget):
     
     def dragMoveEvent(self, e: QDragMoveEvent) -> None:
         if e.mimeData().hasUrls():
-            e.setDropAction(Qt.CopyAction)
+            for url in e.mimeData().urls():
+                if url.toLocalFile().endswith(".apk") or url.toLocalFile().endswith(".rar"):
+                    e.ignore()
+                    return
+            
             e.accept()
         else:
             e.ignore()

@@ -17,6 +17,8 @@ from src.widgets                import SyncListWidget
 from src.widgets                import SyncTableWidget
 from webbrowser                 import open as openSourcePage
 
+CACHE_DOWNLOAD_FILE_NAME = set()
+
 class ServerWindow(QMainWindow):
     def __init__(self,__APPLICATION__: QApplication,dllService: SyncMagnetDllService) -> None:
         super(ServerWindow,self).__init__()
@@ -28,6 +30,7 @@ class ServerWindow(QMainWindow):
         self.SAVE_FILE_THREAD = None
         self.isBack = False
         self.run = True
+        self.isloadPageOpen = False
         self.syncMagnetDllService = dllService
         QThread.sleep(1)
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -940,7 +943,12 @@ class ServerWindow(QMainWindow):
     @pyqtSlot(bool)
     def onAppIsBackground(self, isBackground: bool):
         if isBackground:
-            pass
+            if self.isloadPageOpen:
+                if self.isMinimized():
+                    self.showNormal()
+                self.activateWindow()
+                self.raise_()
+            # pass
             # print("Background")
         else:
             pass
@@ -950,14 +958,16 @@ class ServerWindow(QMainWindow):
         self.run = False
         self.isBack = True
         self.appRunWorker.setRunState(False)
-        self.getInfoWorker.setRunState(False)
-        self.downloadFileWorker.setRunState(False)
         self.appRunThread.quit()
         self.appRunThread.wait()
+        self.syncMagnetDllService.SetCanDeviceState(False)
+        self.getInfoWorker.setRunState(False)
         self.getInfoThread.quit()
         self.getInfoThread.wait()
-        self.downloadFileThread.quit()
-        self.downloadFileThread.wait()
+        if getattr(self,"downloadFileWorker",None):
+            self.downloadFileWorker.setRunState(False)
+            self.downloadFileThread.quit()
+            self.downloadFileThread.wait()
         self.close()
         self.syncMagnetDllService.ManageDllFinished()
 
@@ -997,7 +1007,7 @@ class ServerWindow(QMainWindow):
             self.downloadFileWorker.setRunState(False)
             self.downloadFileThread.quit()
             self.downloadFileThread.wait()
-            self.syncMagnetDllService.SetCanDeviceState()
+            self.syncMagnetDllService.SetCanDeviceState(True)
 
     def goUploadPage(self):
         self.stackedWidget.setCurrentIndex(2)
@@ -1013,9 +1023,10 @@ class ServerWindow(QMainWindow):
             self.downloadFileWorker.setRunState(False)
             self.downloadFileThread.quit()
             self.downloadFileThread.wait()
-            self.syncMagnetDllService.SetCanDeviceState()
+            self.syncMagnetDllService.SetCanDeviceState(True)
 
     def goDownloadPage(self):
+        self.syncMagnetDllService.SetCanDeviceState(False)
         self.stackedWidget.setCurrentIndex(1)
         self.label_top_info_2.setText("| DOWNLOAD")
         root = ET.parse(r".\MagnetManifest.xml")
@@ -1056,7 +1067,13 @@ class ServerWindow(QMainWindow):
                 QTimer.singleShot(5000,lambda: self.loadWindowClosed())
     
     def loadWindowOpened(self):
+        self.isloadPageOpen = True
         self.loadWindow = LoadWindow(self,self.syncMagnetDllService,self.isDownload)
+        load_window_size = self.loadWindow.size()
+        main_window_size = self.size()
+        x = (main_window_size.width() - load_window_size.width()) / 2
+        y = (main_window_size.height() - load_window_size.height()) / 2
+        self.loadWindow.setGeometry(x, y, load_window_size.width(), load_window_size.height())
         self.loadWindow.show()
         self.homeMenuButton.setEnabled(False)
         self.uploadButton.setEnabled(False)
@@ -1065,7 +1082,6 @@ class ServerWindow(QMainWindow):
         self.downloadButton.setEnabled(False)
         self.selectAllButton.setEnabled(False)
         self.sendButton.setEnabled(False)
-        self.btn_close.setEnabled(False)
         self.btn_maximize_restore.setEnabled(False)
         self.btn_minimize.setEnabled(False)
         self.btn_toggle_menu.setEnabled(False)
@@ -1073,6 +1089,7 @@ class ServerWindow(QMainWindow):
 
     def loadWindowClosed(self):
         try:
+            self.isloadPageOpen = False
             self.loadWindow.close()
             self.loadWindow = None
             self.homeMenuButton.setEnabled(True)
@@ -1082,7 +1099,6 @@ class ServerWindow(QMainWindow):
             self.downloadButton.setEnabled(True)
             self.selectAllButton.setEnabled(True)
             self.sendButton.setEnabled(True)
-            self.btn_close.setEnabled(True)
             self.btn_maximize_restore.setEnabled(True)
             self.btn_minimize.setEnabled(True)
             self.btn_toggle_menu.setEnabled(True)
@@ -1180,14 +1196,15 @@ class ServerWindow(QMainWindow):
             getFiles = [file.attrib['file'] for file in root.findall(".//GetFile")]
             for row, file_info in enumerate(getFiles):
                 print(row,"<---->" ,file_info)
-                if file_info not in param['dFiles']:
+                if file_info not in CACHE_DOWNLOAD_FILE_NAME:
+                    CACHE_DOWNLOAD_FILE_NAME.add(file_info)
                     self.downloadedFilesTable.insertRow(row)
                     size_item = QTableWidgetItem(self.syncMagnetDllService.formatSize(os.path.getsize(os.path.join(self.label_top_info_1.text(),file_info))))
                     size_item.setIcon(QIcon(":/16x16/assets/16x16/cil-check-alt.png"))
                     name_item = QTableWidgetItem(file_info)
                     self.downloadedFilesTable.setItem(row, 0, size_item)
                     self.downloadedFilesTable.setItem(row, 1, name_item)
-            print("YÜKLEME İŞLEMİ BİTTİ TABLE WIDGET'A EKLENDİ")
+            print("YÜKLEME İŞLEMİ BİTTİ")
 
     def toggleMenu(self, maxWidth, enable):
         isHidden = False
