@@ -1,6 +1,6 @@
 ## (Android | Desktop) v0.0.7.0 - 08.12.2023
 ### New Features
- - .zip formatında her türlü dosyayı gönderebilirsiniz.
+ - Can send any file in .zip format.
  - Localization added. Is now available in Turkish and English language depending of the device.
 
 ### Bug Fix
