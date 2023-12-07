@@ -1,3 +1,14 @@
+## (Android | Desktop) v0.0.7.0 - 08.12.2023
+### New Features
+ - .zip formatında her türlü dosyayı gönderebilirsiniz.
+ - Localization added. Is now available in Turkish and English language depending of the device.
+
+### Bug Fix
+ - Loading screen edited.
+ - Music page edited.
+ - Hot fix in desktop app.
+
+---
 ## (Android) v0.0.6.6 - 27.11.2023
 ### New Features
  - Listening to music, you can see and select other music.
