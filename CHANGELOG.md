@@ -1,3 +1,11 @@
+## (Android) v0.0.7.2 - 13.12.2023
+### New Features
+- Three new theme added.
+
+### Bug Fix
+- Did now connected run on background and not disconnect.
+
+---
 ## (Android | Desktop) v0.0.7.0 - 08.12.2023
 ### New Features
  - Can send any file in .zip format.
