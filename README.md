@@ -7,6 +7,10 @@ For Windows only
 ## ANDROID
 <div align = "center">
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/2291d11d-ff3e-4615-8ad0-a635f8534a81" width=30% height=30%>
+   <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/cea5c156-7cdc-45e3-ab72-d8de38fd2e6c" width=30% height=30%>
+   <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/85e05e70-d8a0-4153-a4a5-0db150079c44" width=30% height=30%>
+
+   
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/12a9d0b1-f7a4-44b9-abfb-bb261897e211" width=30% height=30%>
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/3fb68bdb-cdf8-4a40-833d-bd5a4e1a12f3" width=30% height=30%>
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/9b917cd8-db7e-42c6-80db-13b9834f8829" width=30% height=30%>
