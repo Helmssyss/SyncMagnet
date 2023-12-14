@@ -1,4 +1,8 @@
-class SyncUpdateSystem{
+#ifndef SYNCUPDATE
+#   define SYNCUPDATE
+#endif
+
+class SYNCUPDATE SyncUpdateSystem{
     public:
         SyncUpdateSystem();
         ~SyncUpdateSystem();

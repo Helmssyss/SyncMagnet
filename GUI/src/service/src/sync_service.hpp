@@ -7,20 +7,32 @@
 #include <vector>
 #include <iostream>
 
-#define SYNCAPI                 extern "C" __declspec(dllexport)
+#ifndef __SYNCPUBLIC
+#   define __SYNCPUBLIC              extern "C" __declspec(dllexport)
+#endif
 
-#define SINGLE                  "SINGLE"
-#define DECLINE                 "DECLINE"
-#define DISCONNECT              "DISCONNECT"
-#define DEVICE                  "DEVICE"
-#define NEXT                    "NEXT"
-#define OK_SEND                 "OK_SEND"
-#define S_FILE_CAME             "S_FILE_CAME"
-#define S_FILE_SEND             "S_FILE_SEND"
-#define FILE_SEND_END           "FILE_SEND_END"
-#define C_MULTIPLE_FILE_SEND    "C_MULTIPLE_FILE_SEND"
-#define C_FILE_SEND             "C_FILE_SEND"
-#define FILE_CHUNK_SIZE         4096
+#ifndef __SYNCPRIVATE
+#   define __SYNCPRIVATE
+#endif
+
+#ifndef __SYNCMAGNET_H
+#   define __SYNCMAGNET_H
+#endif
+
+#ifdef __SYNCMAGNET_H
+#   define SINGLE                  "SINGLE"
+#   define DECLINE                 "DECLINE"
+#   define DISCONNECT              "DISCONNECT"
+#   define DEVICE                  "DEVICE"
+#   define NEXT                    "NEXT"
+#   define OK_SEND                 "OK_SEND"
+#   define S_FILE_CAME             "S_FILE_CAME"
+#   define S_FILE_SEND             "S_FILE_SEND"
+#   define FILE_SEND_END           "FILE_SEND_END"
+#   define C_MULTIPLE_FILE_SEND    "C_MULTIPLE_FILE_SEND"
+#   define C_FILE_SEND             "C_FILE_SEND"
+#   define FILE_CHUNK_SIZE         4096
+#endif
 
 using namespace std;
 
@@ -41,29 +53,31 @@ static bool sendFinished;
 static bool isCanGetDeviceState;
 static bool isLoadFile;
 static bool isDownloadCompleted;
+static bool mobileAppDisconnect;
+static bool onDisconnect;
 
-vector<string> FileMessageParse(string message, short &msgLen = _LENGTH, const char seperator = '|');
-vector<pair<string, string>> MultipleFileMessageParse(string message);
-void GetClientDevice(char *buffer);
-void SendClientFile(const char *inputFile, char *buffer, const int &bufferSize);
-void SaveFileData(const int &bufferSize, const char *fileName);
-void HandleFileProcess(char *buffer, const int &bufferSize = 1024, bool allowMultiple = false);
-void XMLFile(const char* deviceName, const char* batterySize);
-void GetCurrentFileCompleted(const char *currentFileSendCompleted, bool isDownload = false);
-void CreateSaveFilePathFolder();
-bool FolderExists(const wchar_t *folderPath);
-bool FileExists(const wchar_t *filePath);
+__SYNCPRIVATE vector<string> FileMessageParse(string message, short &msgLen = _LENGTH, const char seperator = '|');
+__SYNCPRIVATE vector<pair<string, string>> MultipleFileMessageParse(string message);
+__SYNCPRIVATE void GetClientDevice(char *buffer);
+__SYNCPRIVATE void SendClientFile(const char *inputFile, char *buffer, const int &bufferSize);
+__SYNCPRIVATE void SaveFileData(const int &bufferSize, const char *fileName);
+__SYNCPRIVATE void HandleFileProcess(char *buffer, const int &bufferSize = 1024, bool allowMultiple = false);
+__SYNCPRIVATE void XMLFile(const char* deviceName, const char* batterySize);
+__SYNCPRIVATE void GetCurrentFileCompleted(const char *currentFileSendCompleted, bool isDownload = false);
+__SYNCPRIVATE void CreateSaveFilePathFolder();
+__SYNCPRIVATE bool FolderExists(const wchar_t *folderPath);
+__SYNCPRIVATE bool FileExists(const wchar_t *filePath);
 
-SYNCAPI void SetupServer(const char *ipAddr);
-SYNCAPI void StartServer();
-SYNCAPI void SendSelectFiles(const char* *files, int fileCount);
-SYNCAPI void HandleFileTransfer();
-SYNCAPI void CloseServer();
-SYNCAPI inline void GetDeviceBatteryStatusPerSecond() { try{GetClientDevice(buffer);}catch(const exception& e){std::cerr << e.what() << '\n';}}
-SYNCAPI inline void SetCanDeviceState(bool state) { isCanGetDeviceState = state; }
-SYNCAPI inline int GetCurrentDownloadFileSize() { return downloadFileSize; }
-SYNCAPI inline int GetCurrentTotalDownloadFileSize() { return downloadTotalFileSize; }
-SYNCAPI inline bool GetSendFinishedState() { return sendFinished; }
-SYNCAPI inline bool GetIsLoadFile() { return isLoadFile; }
-SYNCAPI inline bool GetIsDownloadCompletedFile() { return isDownloadCompleted; }
-SYNCAPI inline bool CanGetDeviceState() { return isCanGetDeviceState; }
+__SYNCPUBLIC void SetupServer(const char *ipAddr);
+__SYNCPUBLIC void StartServer();
+__SYNCPUBLIC void SendSelectFiles(const char* *files, int fileCount);
+__SYNCPUBLIC void HandleFileTransfer();
+__SYNCPUBLIC void CloseServer();
+__SYNCPUBLIC void GetDeviceBatteryStatusPerSecond();
+__SYNCPUBLIC inline void SetCanDeviceState(bool state) { isCanGetDeviceState = state; }
+__SYNCPUBLIC inline int GetCurrentDownloadFileSize() { return downloadFileSize; }
+__SYNCPUBLIC inline int GetCurrentTotalDownloadFileSize() { return downloadTotalFileSize; }
+__SYNCPUBLIC inline bool GetSendFinishedState() { return sendFinished; }
+__SYNCPUBLIC inline bool GetIsLoadFile() { return isLoadFile; }
+__SYNCPUBLIC inline bool GetIsDownloadCompletedFile() { return isDownloadCompleted; }
+__SYNCPUBLIC inline bool CanGetDeviceState() { return isCanGetDeviceState; }

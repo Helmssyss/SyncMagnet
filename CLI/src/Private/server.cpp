@@ -81,7 +81,7 @@ void Server::Start() {
                 const std::wstring wInputFilePath(input_file.begin(), input_file.end());
                 const wchar_t* wInputFile = wInputFilePath.c_str();
                 if (FileExists(wInputFile)) {
-                    SendClientFile(input_file, buffer, bufferSize);
+                    SendClientFile(input_file.c_str(), buffer, bufferSize);
                     fileIsExists = true;
                 
                 }else if (input_file == "n" || input_file == "N") {
@@ -118,22 +118,22 @@ std::string Server::GetClientDeviceName(char* buffer, int& buffSize) {
     return resultData;
 }
 
-void Server::SendClientFile(std::string& inputFile, char* buffer, const int& bufferSize) {
-    short fileNameCount = 0;
+void Server::SendClientFile(const char *inputFile, char* buffer, const int& bufferSize) {
     std::ifstream file(inputFile, std::ios::binary);
     file.seekg(0, std::ios::end);
     const unsigned long fileSize = file.tellg();
     file.close();
 
-    std::vector<std::string> str = FileMessageParse(inputFile, fileNameCount, '/');
-    std::string firstFileContent;
-    const std::string seperator = "|:FILE:|";
-    firstFileContent = seperator + str[fileNameCount] + seperator + std::to_string(fileSize) + seperator;
-    Sleep(10);
-    send(ClientSocket, firstFileContent.c_str(), strlen(firstFileContent.c_str()), 0);
+    short fileNameCount = 0;
+    const std::vector<std::string> parsedFileName = FileMessageParse(inputFile, fileNameCount, '\\');
+    const std::string seperator = "|:MAGNET:|";
+    const std::string sendDataPart = seperator + parsedFileName[fileNameCount] + seperator + std::to_string(fileSize) + seperator;
+    
+    if(fileSize < 100000) Sleep(1000);
+    else Sleep(10);
+    send(ClientSocket, sendDataPart.c_str(), strlen(sendDataPart.c_str()), 0);
     Sleep(10);
     send(ClientSocket, S_FILE_CAME, strlen(S_FILE_CAME), 0);
-    Sleep(10);
     
     bool run = true;
     while (run) {
@@ -167,7 +167,6 @@ void Server::SendClientFile(std::string& inputFile, char* buffer, const int& buf
     console::CompleteUploadFileDisplay(fileSize);
     Sleep(10);
     send(ClientSocket, FILE_SEND_END, strlen(FILE_SEND_END), 0);
-    // memset(buffer, 0, sizeof(buffer));
 }
 
 void Server::HandleFileProcess(char* &buffer, int &bufferSize, bool saveMultipleFile) {
@@ -204,7 +203,6 @@ void Server::HandleFileProcess(char* &buffer, int &bufferSize, bool saveMultiple
                 send(ClientSocket, DECLINE, strlen(DECLINE), 0);
                 console::AlertMessage("Ignored");
                 isAccepted = true;
-                memset(buffer, 0, sizeof(buffer));
             }
         }
     }
@@ -266,14 +264,12 @@ std::vector<std::string> Server::FileMessageParse(std::string message, short& ms
     std::stringstream sstream;
     std::string temp;
     std::vector<std::string> resultVector;
-    int count = 0;
+    short count = 0;
     sstream << message;
 
-    for (char i : message) {
-        if (i == seperator) {
+    for (char i : message)
+        if (i == seperator) 
             count++;
-        }
-    }
 
     for (int i = 0; i <= count; i++) {
         std::getline(sstream, temp, seperator);

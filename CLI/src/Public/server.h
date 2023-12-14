@@ -34,7 +34,7 @@ class Server {
 		void CreateSaveFilePathFolder() const;
 		void HandleFileProcess(char*& buffer, int& bufferSize, bool saveMultipleFile = false);
 		void HandleFileTransfer(char* buffer, int& bufferSize);
-		void SendClientFile(string& inputFolder, char* buffer, const int& bufferSize);
+		void SendClientFile(const char *inputFile, char* buffer, const int& bufferSize);
 		void SaveFileData(const int& bufferSize, const char* fileName);
 		bool FolderExists(const wchar_t* folderPath) const;
 		bool FileExists(const wchar_t* filePath) const;

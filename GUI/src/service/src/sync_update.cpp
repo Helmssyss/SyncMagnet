@@ -1,17 +1,17 @@
 #include "./sync_update.hpp"
 
-SyncUpdateSystem::SyncUpdateSystem(){
+SYNCUPDATE SyncUpdateSystem::SyncUpdateSystem(){
     //
 }
-SyncUpdateSystem::~SyncUpdateSystem(){
+SYNCUPDATE SyncUpdateSystem::~SyncUpdateSystem(){
     //
 }
-void SyncUpdateSystem::CheckVersion() const{
+SYNCUPDATE void SyncUpdateSystem::CheckVersion() const{
     //
 }
-void SyncUpdateSystem::NewDownloadApp() const{
+SYNCUPDATE void SyncUpdateSystem::NewDownloadApp() const{
     //
 }
-void SyncUpdateSystem::DeleteOldApp() const{
+SYNCUPDATE void SyncUpdateSystem::DeleteOldApp() const{
     //
 }
