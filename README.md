@@ -38,9 +38,11 @@ For Windows only
    -   For the C++ compiler go to https://www.msys2.org/docs/installer/
    -   After following the necessary steps, install the following libraries
          -   https://packages.msys2.org/package/mingw-w64-x86_64-pugixml?repo=mingw64
+              -  `pacman -S mingw-w64-x86_64-pugixml`
          -   https://packages.msys2.org/package/mingw-w64-x86_64-curl
+              -   `pacman -S mingw-w64-x86_64-curl`
 
-- ### Install Python Interpreter (_Version 3.9.13_)
+- ### (ONLY FOR GUI) Install Python Interpreter (_Version 3.9.13_)
   -   For the Python interpreter, go to https://www.python.org/downloads/release/python-3913/
   -   Once installed, open the terminal in the directory where the project is located.
   -   Type the command `pip install .\requirements.txt` to install the libraries in the `requirements.txt` file.
@@ -57,9 +59,11 @@ For Windows only
    -   C++ derleyicisi için bu adrese gidin https://www.msys2.org/docs/installer/
    -   Gerekli adımları uyguladıktan sonra aşağıdaki kütüphaneleri kurun
          -   https://packages.msys2.org/package/mingw-w64-x86_64-pugixml?repo=mingw64
+              -  `pacman -S mingw-w64-x86_64-pugixml`
          -   https://packages.msys2.org/package/mingw-w64-x86_64-curl
+              -   `pacman -S mingw-w64-x86_64-curl`
 
-- ### Python Yorumlayıcısını Yükleyin (_Version 3.9.13_)
+- ### (SADECE GUI İÇİN) Python Yorumlayıcısını Yükleyin (_Version 3.9.13_)
   -   Python yorumlayıcısı için şu adrese gidin https://www.python.org/downloads/release/python-3913/
   -   Kurulduktan sonra projenin bulunduğu dizinde terminali açın.
   -   `requirements.txt` dosyasındaki kütüphaneleri kurmak için `pip install .\requirements.txt` komutunu yazın.
