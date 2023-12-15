@@ -32,6 +32,13 @@ For Windows only
 
 </div>
 
+---
+
+### DOWNLOAD
+-   Releases
+      -   Pre-release
+          - ⬇️ **[v0.0.7.5](https://github.com/Helmssyss/SyncMagnet/releases/download/test/SyncMagnet_v0.0.7.5.zip)** - 16.12.2023
+
 # EN
 ## How to Run Project? (Only _Windows_)
 - ### Install C++ Compiler
