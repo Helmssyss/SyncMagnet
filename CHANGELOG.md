@@ -1,6 +1,14 @@
+## (Android | Desktop) v0.0.7.5 - 16.12.2023
+### Bug Fix
+ - The error that occurred when sending a single file from mobile to desktop has been resolved.
+ - The error that occurred when sending a file from mobile while the tab on the desktop was different has been resolved.
+ - A minor change was made to the interface on the desktop. The error that occurred has been resolved.
+   
+---
 ## (Android) v0.0.7.2 - 13.12.2023
 ### New Features
 - Three new theme added.
+   - (purple/dark) (yellow/dark) (blue/dark)
 
 ### Bug Fix
 - Did now connected run on background and not disconnect.
