@@ -80,10 +80,12 @@ class SyncFileDownloadWorker(QObject):
 
     def start(self):
         while self.__runWorker:
-            __DLL_SERVICE__.HandleFileTransfer()
-            self.onConnectDownload.emit({"state":__DLL_SERVICE__.GetIsDownloadCompletedFile(),"dFiles":CACHE_DOWNLOAD_FILE})
-            # print("__DLL_SERVICE__.HandleFileTransfer()")
-            sleep(0.1)
+            try:
+                __DLL_SERVICE__.HandleFileTransfer()
+                self.onConnectDownload.emit({"state":__DLL_SERVICE__.GetIsDownloadCompletedFile(),"dFiles":CACHE_DOWNLOAD_FILE})
+                sleep(0.2)
+            except Exception as e:
+                print(f"PY SyncFileDownloadWorker -> {e}")
 # ##### ===> SyncFileDownloadWorker
 
 # ##### ===> SyncDownloadFileListener
@@ -166,7 +168,6 @@ class SyncLoadPageCDWorker(QObject):
             finally:
                 sleep(0.1)
 # ##### ===> SyncLoadPageCDWorker
-
 
 # #### ====> SyncCheckNetWorker
 class SyncCheckNetWorker(QObject):

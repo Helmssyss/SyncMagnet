@@ -15,6 +15,7 @@ from src.funcs.sync_workers     import SyncLoadFileListener
 from src.pages.sync_load_page   import LoadWindow
 from src.widgets                import SyncListWidget
 from src.widgets                import SyncTableWidget
+from src.widgets                import SyncTextEdit
 from webbrowser                 import open as openSourcePage
 
 CACHE_DOWNLOAD_FILE_NAME = set()
@@ -23,7 +24,6 @@ class ServerWindow(QMainWindow):
     def __init__(self,__APPLICATION__: QApplication,dllService: SyncMagnetDllService) -> None:
         super(ServerWindow,self).__init__()
         self.APPLICATON = __APPLICATION__
-        
         self.isSelectAll = False
         self.isDownload = True
         self.getFilestartProcess = False
@@ -32,7 +32,7 @@ class ServerWindow(QMainWindow):
         self.run = True
         self.isloadPageOpen = False
         self.syncMagnetDllService = dllService
-        QThread.sleep(1)
+        # QThread.sleep(1)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setupUi(self)
@@ -384,7 +384,7 @@ class ServerWindow(QMainWindow):
         self.layout_menus.setContentsMargins(0, 0, 0, 0)
         self.homeMenuButton = QPushButton(self.frame_menus)
         self.homeMenuButton.setObjectName(u"homeMenuButton")
-        self.homeMenuButton.setStyleSheet(SyncStyle.serverPageHomeButton)
+        self.homeMenuButton.setStyleSheet(SyncStyle.menuButtonActive)
         icon5 = QIcon()
         icon5.addFile(u":/20x20/assets/20x20/cil-home.png", QSize(), QIcon.Normal, QIcon.Off)
         self.homeMenuButton.setIcon(icon5)
@@ -599,10 +599,7 @@ class ServerWindow(QMainWindow):
         self.verticalSpacer_2 = QSpacerItem(20, 51, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.verticalLayout_10.addItem(self.verticalSpacer_2)
 
-        self.changelogTextEdit = QTextEdit(self.page_home)
-        self.changelogTextEdit.setMinimumSize(QSize(200, 200))
-        self.changelogTextEdit.setStyleSheet(SyncStyle.serverPageChangelogTextEdit)
-        self.changelogTextEdit.setReadOnly(True)
+        self.changelogTextEdit = SyncTextEdit(self.page_home)
 
         self.verticalLayout_10.addWidget(self.changelogTextEdit)
 
@@ -708,7 +705,6 @@ class ServerWindow(QMainWindow):
         self.buttonManageHorizontalLayout2.setObjectName(u"buttonManageHorizontalLayout2")
         self.buttonManageHorizontalLayout2.setContentsMargins(0, -1, -1, -1)
         self.openFolderButton = QPushButton(self.uploadPage)
-        self.openFolderButton.setObjectName(u"openFolderButton")
         self.openFolderButton.setMinimumSize(QSize(150, 30))
         font9 = QFont()
         font9.setFamily(u"Segoe UI")
@@ -892,7 +888,6 @@ class ServerWindow(QMainWindow):
         self.openFolderButton.setText(QCoreApplication.translate("MainWindow", u"Open Folder", None))
         self.selectAllButton.setText(QCoreApplication.translate("MainWindow", u"Select All", None))
         self.sendButton.setText(QCoreApplication.translate("MainWindow", u"Send", None))
-
         self.label_version.setText("v0.0.6.3")
 
     def eventFilter(self, source, event) -> bool:
@@ -923,7 +918,8 @@ class ServerWindow(QMainWindow):
         self.btn_minimize.clicked.connect(lambda: self.showMinimized())
         self.btn_toggle_menu.clicked.connect(lambda: self.toggleMenu(220, True))
         self.githubButton.clicked.connect(lambda: openSourcePage("https://github.com/Helmssyss/SyncMagnet"))
-        self.openDownloadFolderButton.clicked.connect(lambda: self.openFolder())
+        self.openDownloadFolderButton.clicked.connect(lambda: self.openDownloadFolder())
+        self.openFolderButton.clicked.connect(lambda: self.openFolder())
 
         self.appRunWorker = SyncProcessRunWorker(self.APPLICATON)
         self.appRunThread = QThread(self)
@@ -989,11 +985,21 @@ class ServerWindow(QMainWindow):
         if event.type() == QEvent.MouseButtonDblClick:
             QTimer.singleShot(250, lambda: self.setMaximized())
 
-    def openFolder(self):
+    def openDownloadFolder(self):
         print(self.label_top_info_1.text())
         return os.startfile(self.label_top_info_1.text())
 
+    def openFolder(self):
+        selectedFiles = QFileDialog.getOpenFileNames(self,"Select File")
+        for i in selectedFiles[0]:
+            self.sendFileListWidget.addItem(QListWidgetItem(i))
+        print(selectedFiles[0])
+
     def goHomePage(self):
+        self.syncMagnetDllService.SetTransferMode(False)
+        self.homeMenuButton.setStyleSheet(SyncStyle.menuButtonActive)
+        self.downloadMenuButton.setStyleSheet(SyncStyle.serverPageDownloadMenuButton)
+        self.uploadMenuButton.setStyleSheet(SyncStyle.serverPageUploadMenuButton)
         self.stackedWidget.setCurrentIndex(0)
         self.label_top_info_2.setText("| HOME")
         self.label_top_info_1.setText("")
@@ -1010,6 +1016,10 @@ class ServerWindow(QMainWindow):
             self.syncMagnetDllService.SetCanDeviceState(True)
 
     def goUploadPage(self):
+        self.syncMagnetDllService.SetTransferMode(False)
+        self.uploadMenuButton.setStyleSheet(SyncStyle.menuButtonActive)
+        self.homeMenuButton.setStyleSheet(SyncStyle.serverPageDownloadMenuButton)
+        self.downloadMenuButton.setStyleSheet(SyncStyle.serverPageDownloadMenuButton)
         self.stackedWidget.setCurrentIndex(2)
         self.label_top_info_2.setText("| UPLOAD")
         self.label_top_info_1.setText("")
@@ -1026,6 +1036,10 @@ class ServerWindow(QMainWindow):
             self.syncMagnetDllService.SetCanDeviceState(True)
 
     def goDownloadPage(self):
+        self.syncMagnetDllService.SetTransferMode(True)
+        self.downloadMenuButton.setStyleSheet(SyncStyle.menuButtonActive)
+        self.uploadMenuButton.setStyleSheet(SyncStyle.serverPageUploadMenuButton)
+        self.homeMenuButton.setStyleSheet(SyncStyle.serverPageDownloadMenuButton)
         self.syncMagnetDllService.SetCanDeviceState(False)
         self.stackedWidget.setCurrentIndex(1)
         self.label_top_info_2.setText("| DOWNLOAD")

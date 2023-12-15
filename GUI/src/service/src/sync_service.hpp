@@ -36,25 +36,24 @@
 
 using namespace std;
 
-SOCKET ServerSocket;
-SOCKET ClientSocket;
-
-sockaddr_in ServerAddr;
-sockaddr_in ClientAddr;
-
-static short _LENGTH = 0;
-static int bufferSize = 1024;
-static const char *deviceName = "";
-static int downloadFileSize = 0;
-static int downloadTotalFileSize = 0;
-static string PcUserName;
-static char buffer[1024];
-static bool sendFinished;
-static bool isCanGetDeviceState;
-static bool isLoadFile;
-static bool isDownloadCompleted;
-static bool mobileAppDisconnect;
-static bool onDisconnect;
+__SYNCPRIVATE SOCKET ServerSocket;
+__SYNCPRIVATE SOCKET ClientSocket;
+__SYNCPRIVATE sockaddr_in ServerAddr;
+__SYNCPRIVATE sockaddr_in ClientAddr;
+__SYNCPRIVATE static short _LENGTH = 0;
+__SYNCPRIVATE static int bufferSize = 1024;
+__SYNCPRIVATE static const char *deviceName = "";
+__SYNCPRIVATE static int downloadFileSize = 0;
+__SYNCPRIVATE static int downloadTotalFileSize = 0;
+__SYNCPRIVATE static string PcUserName;
+__SYNCPRIVATE static char buffer[1024];
+__SYNCPRIVATE static bool sendFinished;
+__SYNCPRIVATE static bool isCanGetDeviceState;
+__SYNCPRIVATE static bool isLoadFile;
+__SYNCPRIVATE static bool isDownloadCompleted;
+__SYNCPRIVATE static bool mobileAppDisconnect;
+__SYNCPRIVATE static bool onDisconnect;
+__SYNCPRIVATE static bool isTransfer = true;
 
 __SYNCPRIVATE vector<string> FileMessageParse(string message, short &msgLen = _LENGTH, const char seperator = '|');
 __SYNCPRIVATE vector<pair<string, string>> MultipleFileMessageParse(string message);
@@ -75,6 +74,7 @@ __SYNCPUBLIC void HandleFileTransfer();
 __SYNCPUBLIC void CloseServer();
 __SYNCPUBLIC void GetDeviceBatteryStatusPerSecond();
 __SYNCPUBLIC inline void SetCanDeviceState(bool state) { isCanGetDeviceState = state; }
+__SYNCPUBLIC inline void SetTransferMode(bool mode) { isTransfer = mode; }
 __SYNCPUBLIC inline int GetCurrentDownloadFileSize() { return downloadFileSize; }
 __SYNCPUBLIC inline int GetCurrentTotalDownloadFileSize() { return downloadTotalFileSize; }
 __SYNCPUBLIC inline bool GetSendFinishedState() { return sendFinished; }

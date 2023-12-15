@@ -126,6 +126,15 @@ class SyncStyle:
 			border-left: 28px solid rgb(85, 170, 255);
 		}
 	"""
+    menuButtonActive = """
+		QPushButton {
+			border: none;
+			background-color: rgb(33, 37, 43);
+			border-right: 3px solid rgb(44, 49, 60);
+			border-left: 25px solid rgb(33, 37, 43);
+			text-align: left;
+		}
+	"""
     serverPageHomeButton = """
 		QPushButton {
 			border: none;

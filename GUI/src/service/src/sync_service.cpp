@@ -16,82 +16,105 @@ static pugi::xml_node xmlFolderPath = xmlRoot.append_child("FolderPath");
 static pugi::xml_node decl = xmlDoc.prepend_child(pugi::node_declaration);
 
 __SYNCPRIVATE std::vector<std::string> FileMessageParse(std::string message, short& msgLen, const char seperator) {
-    std::stringstream sstream;
-    std::string temp;
-    std::vector<std::string> resultVector;
-    short count = 0;
-    sstream << message;
+    try{
+        std::stringstream sstream;
+        std::string temp;
+        std::vector<std::string> resultVector;
+        short count = 0;
+        sstream << message;
 
-    for (char i : message)
-        if (i == seperator) 
-            count++;
+        for (char i : message)
+            if (i == seperator) 
+                count++;
 
-    for (int i = 0; i <= count; i++) {
-        std::getline(sstream, temp, seperator);
-        resultVector.push_back(temp);
+        for (int i = 0; i <= count; i++) {
+            std::getline(sstream, temp, seperator);
+            resultVector.push_back(temp);
+        }
+
+        msgLen = count;
+        return resultVector;
+    }catch(const std::exception& e){
+        std::cerr << "FileMessageParse -> " << e.what() << '\n';
+        CloseServer();
+        std::vector<std::string> r;
+        return r;
     }
-
-    msgLen = count;
-    return resultVector;
 }
 
 __SYNCPRIVATE std::vector<std::pair<std::string, std::string>> MultipleFileMessageParse(std::string message){
-    std::vector<std::string> parsedData = FileMessageParse(message);
-    std::map<std::string, std::string> resultMap;
-    std::string _key;
+    try{
+        std::vector<std::string> parsedData = FileMessageParse(message);
+        std::map<std::string, std::string> resultMap;
+        std::string _key;
 
-    for (int8_t i = 0; i < parsedData.size(); i++) {
-        if (i % 2 == 0) {
-            _key = parsedData[i];
-        }else {
-            std::string _value = parsedData[i];
-            resultMap[_key] = _value;
+        for (int8_t i = 0; i < parsedData.size(); i++) {
+            if (i % 2 == 0) {
+                _key = parsedData[i];
+            }else {
+                std::string _value = parsedData[i];
+                resultMap[_key] = _value;
+            }
         }
+
+        std::vector<std::pair<std::string, std::string>> resultVector(resultMap.begin(), resultMap.end());
+        std::sort(resultVector.begin(), resultVector.end(),
+            [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) {
+                return std::stoi(a.first) > std::stoi(b.first);
+            }
+        );
+
+        return resultVector;
+    }catch(const std::exception& e){
+        std::cerr << "MultipleFileMessageParse -> " << e.what() << '\n';
+        CloseServer();
+        std::vector<std::pair<std::string, std::string>> r;
+        return r;
     }
-
-    std::vector<std::pair<std::string, std::string>> resultVector(resultMap.begin(), resultMap.end());
-    std::sort(resultVector.begin(), resultVector.end(),
-        [](const std::pair<std::string, std::string>& a, const std::pair<std::string, std::string>& b) {
-            return std::stoi(a.first) > std::stoi(b.first);
-        }
-    );
-
-    return resultVector;
 }
 
 __SYNCPRIVATE void XMLFile(const char* deviceName, const char* batterySize){
-    if (xmlDeviceRoot) {
-        pugi::xml_attribute deviceNameAttr = xmlDeviceRoot.attribute("device_name");
-        pugi::xml_attribute deviceBatteryAttr = xmlDeviceRoot.attribute("device_battery");
+    try{
+        if (xmlDeviceRoot) {
+            pugi::xml_attribute deviceNameAttr = xmlDeviceRoot.attribute("device_name");
+            pugi::xml_attribute deviceBatteryAttr = xmlDeviceRoot.attribute("device_battery");
 
-        if (deviceNameAttr) 
-            deviceNameAttr.set_value(deviceName);
-        else 
+            if (deviceNameAttr) 
+                deviceNameAttr.set_value(deviceName);
+            else 
+                xmlDeviceRoot.append_attribute("device_name").set_value(deviceName);
+            
+
+            if (deviceBatteryAttr) 
+                deviceBatteryAttr.set_value(batterySize);
+            else 
+                xmlDeviceRoot.append_attribute("device_battery").set_value(batterySize);
+        
+        } else {
+            xmlDeviceRoot = xmlRoot.append_child("Device");
             xmlDeviceRoot.append_attribute("device_name").set_value(deviceName);
-        
-
-        if (deviceBatteryAttr) 
-            deviceBatteryAttr.set_value(batterySize);
-        else 
             xmlDeviceRoot.append_attribute("device_battery").set_value(batterySize);
-        
+        }
 
-    } else {
-        xmlDeviceRoot = xmlRoot.append_child("Device");
-        xmlDeviceRoot.append_attribute("device_name").set_value(deviceName);
-        xmlDeviceRoot.append_attribute("device_battery").set_value(batterySize);
+        xmlDoc.save_file("./MagnetManifest.xml");
+    }catch(const std::exception& e){
+        std::cerr << "XMLFile -> " <<e.what() << '\n';
+        CloseServer();
     }
-
-    xmlDoc.save_file("./MagnetManifest.xml");
 }
 
 __SYNCPRIVATE void GetCurrentFileCompleted(const char* currentFileSendCompleted, bool isDownload) {
-    if (!isDownload){ // from pc to mobile
-        xmlRoot.append_child("SendFile").append_attribute("file").set_value(currentFileSendCompleted);
-    }else{ // from mobile to pc
-        xmlRoot.append_child("GetFile").append_attribute("file").set_value(currentFileSendCompleted);
+    try{
+        if (!isDownload){ // from pc to mobile
+            xmlRoot.append_child("SendFile").append_attribute("file").set_value(currentFileSendCompleted);
+        }else{ // from mobile to pc
+            xmlRoot.append_child("GetFile").append_attribute("file").set_value(currentFileSendCompleted);
+        }
+        xmlDoc.save_file("./MagnetManifest.xml");
+    }catch(const std::exception& e){
+        std::cerr << "GetCurrentFileCompleted -> " << e.what() << '\n';
+        CloseServer();
     }
-    xmlDoc.save_file("./MagnetManifest.xml");
 }
 
 __SYNCPRIVATE void CreateSaveFilePathFolder() {
@@ -116,23 +139,25 @@ __SYNCPRIVATE bool FileExists(const wchar_t* filePath){
 }
 
 __SYNCPRIVATE void GetClientDevice(char* buffer) {
-    
-    send(ClientSocket, DEVICE, strlen(DEVICE), 0);
-    if(recv(ClientSocket, buffer, 1024, 0) != 0){
-        std::cout << buffer << std::endl;
-        const std::string deviceName = FileMessageParse(buffer)[1];
-        const int8_t deviceNameLength = std::stoi(FileMessageParse(buffer)[0]);
-        const std::string resultDeviceNameData = deviceName.substr(0, deviceNameLength);
-        std::string resultBatteryData = FileMessageParse(buffer)[2];
-        
-        if (std::stoi(resultBatteryData) > 100)
-            resultBatteryData.erase(resultBatteryData.size() - 1);
+    try{
+        send(ClientSocket, DEVICE, strlen(DEVICE), 0);
+        if(recv(ClientSocket, buffer, 1024, 0) != 0){
+            std::cout << buffer << std::endl;
+            const std::string deviceName = FileMessageParse(buffer)[1];
+            const int8_t deviceNameLength = std::stoi(FileMessageParse(buffer)[0]);
+            const std::string resultDeviceNameData = deviceName.substr(0, deviceNameLength);
+            std::string resultBatteryData = FileMessageParse(buffer)[2];
+            
+            if (std::stoi(resultBatteryData) > 100)
+                resultBatteryData.erase(resultBatteryData.size() - 1);
 
-        XMLFile(resultDeviceNameData.c_str(), resultBatteryData.c_str());
-    }else{
-        mobileAppDisconnect = true;
-        CloseServer();
-        
+            XMLFile(resultDeviceNameData.c_str(), resultBatteryData.c_str());
+        }else{
+            mobileAppDisconnect = true;
+            CloseServer();
+        }
+    }catch(const std::exception& e){
+        std::cerr << "GetClientDevice -> " << e.what() << '\n';
     }
 }
 
@@ -192,20 +217,24 @@ __SYNCPRIVATE void SendClientFile(const char *inputFile, char* buffer, const int
 }
 
 __SYNCPRIVATE void SaveFileData(const int& bufferSize, const char* fileName){
-    std::ofstream file;
-    file.open("C:/Users/" + PcUserName + "/Documents/SyncMagnetSave/" + fileName, std::ios::binary);
-    char* dynamicBuffer = new char[bufferSize];
-    int readBytes = 0;
-    downloadTotalFileSize = bufferSize;
-    while (readBytes < bufferSize) {
-        int recvData = recv(ClientSocket, (dynamicBuffer + readBytes), (bufferSize - readBytes), 0);
-        readBytes += recvData;
-        file.write((dynamicBuffer + readBytes - recvData), recvData);
-        downloadFileSize = readBytes;
+    try{
+        std::ofstream file;
+        file.open("C:/Users/" + PcUserName + "/Documents/SyncMagnetSave/" + fileName, std::ios::binary);
+        char* dynamicBuffer = new char[bufferSize];
+        int readBytes = 0;
+        downloadTotalFileSize = bufferSize;
+        while (readBytes < bufferSize) {
+            int recvData = recv(ClientSocket, (dynamicBuffer + readBytes), (bufferSize - readBytes), 0);
+            readBytes += recvData;
+            file.write((dynamicBuffer + readBytes - recvData), recvData);
+            downloadFileSize = readBytes;
+        }
+        file.close();
+        delete[] dynamicBuffer;
+    }catch(const std::exception& e){
+        std::cerr << "SaveFileData -> " << e.what() << '\n';
+        CloseServer();
     }
-    file.close();
-    delete[] dynamicBuffer;
-    memset(buffer, 0, sizeof(buffer)); // 
 }
 
 __SYNCPRIVATE void HandleFileProcess(char* buffer, const int &bufferSize, bool allowMultiple){
@@ -213,6 +242,7 @@ __SYNCPRIVATE void HandleFileProcess(char* buffer, const int &bufferSize, bool a
         isLoadFile = true;
         if (!allowMultiple){
             send(ClientSocket, SINGLE, strlen(SINGLE), 0);
+            // std::cout << buffer << " bufferSize -> "<<bufferSize << std::endl;
             SaveFileData(bufferSize, FileMessageParse(buffer)[1].c_str());
             GetCurrentFileCompleted(FileMessageParse(buffer)[1].c_str(),true);
             isDownloadCompleted = true;
@@ -295,6 +325,12 @@ __SYNCPUBLIC void SendSelectFiles(const char* *files, int fileCount) {
 
 __SYNCPUBLIC void HandleFileTransfer(){
     try{
+        std::cout << "isTransfer -> " << isTransfer << std::endl;
+        if (isTransfer){
+            send(ClientSocket, "H_TRANSFER", strlen("H_TRANSFER"), 0);
+            std::cout << "H_TRANSFER" << std::endl;
+            isTransfer = false;
+        }
         isCanGetDeviceState = false;
         isDownloadCompleted = false;
         u_long availableData = 0;
@@ -329,9 +365,10 @@ __SYNCPUBLIC void HandleFileTransfer(){
 
 __SYNCPUBLIC void GetDeviceBatteryStatusPerSecond(){
     try{
+        memset(buffer, 0, sizeof(buffer));
         if(!onDisconnect) GetClientDevice(buffer);
     }catch(const exception& e){
-        std::cerr << "GetDeviceBatteryStatusPerSecond ->" <<e.what() << '\n';
+        std::cerr << "GetDeviceBatteryStatusPerSecond -> " <<e.what() << '\n';
         CloseServer();
     }
 }

@@ -70,14 +70,12 @@ class SyncMagnetDllService():
 
         return self.__magnetDll.GetIsLoadFile()
 
-    def GetIsDownloadCompletedFile(self):
+    def GetIsDownloadCompletedFile(self) -> bool:
         """ dosya indirme bittiyse True, bitmediyse False """
-
         return self.__magnetDll.GetIsDownloadCompletedFile()
 
-    def CanGetDeviceState(self) -> None:
+    def CanGetDeviceState(self) -> bool:
         """dosya gönderiliyor mu gönderiliyorsa True gönderilmiyorsa False"""
-
         return self.__magnetDll.CanGetDeviceState()
 
     def GetDeviceBatteryStatus(self):
@@ -85,6 +83,9 @@ class SyncMagnetDllService():
 
     def SetCanDeviceState(self,state: bool):
         return self.__magnetDll.SetCanDeviceState(state)
+
+    def SetTransferMode(self,mode: bool):
+        self.__magnetDll.SetTransferMode(mode)
 
     def formatSize(self,byte) -> str:
         """ Dosya boyutu birim dönüşümü """
