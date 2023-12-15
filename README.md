@@ -31,3 +31,42 @@ For Windows only
    ### [CHANGELOG](https://github.com/Helmssyss/SyncMagnet/blob/main/CHANGELOG.md)
 
 </div>
+
+# EN
+## How to Run Project? (Only _Windows_)
+- ### Install C++ Compiler
+   -   For the C++ compiler go to https://www.msys2.org/docs/installer/
+   -   After following the necessary steps, install the following libraries
+         -   https://packages.msys2.org/package/mingw-w64-x86_64-pugixml?repo=mingw64
+         -   https://packages.msys2.org/package/mingw-w64-x86_64-curl
+
+- ### Install Python Interpreter (_Version 3.9.13_)
+  -   For the Python interpreter, go to https://www.python.org/downloads/release/python-3913/
+  -   Once installed, open the terminal in the directory where the project is located.
+  -   Type the command `pip install .\requirements.txt` to install the libraries in the `requirements.txt` file.
+
+- ### Compile the Project
+  -   Open the project folder with terminal.
+  -   Type `mingw32-make` to execute the commands written in the `Makefile` file in the project.
+  -   If a successful build process is completed, the message `Build process is completed.` will appear.
+  -   When the compilation process is successful, you can run the project by typing `python main.py` in the same file path.
+
+# TR
+## Proje Nasıl Çalıştırılır? (Sadece _Windows_)
+- ### C++ Derleyicisini yükleyin
+   -   C++ derleyicisi için bu adrese gidin https://www.msys2.org/docs/installer/
+   -   Gerekli adımları uyguladıktan sonra aşağıdaki kütüphaneleri kurun
+         -   https://packages.msys2.org/package/mingw-w64-x86_64-pugixml?repo=mingw64
+         -   https://packages.msys2.org/package/mingw-w64-x86_64-curl
+
+- ### Python Yorumlayıcısını Yükleyin (_Version 3.9.13_)
+  -   Python yorumlayıcısı için şu adrese gidin https://www.python.org/downloads/release/python-3913/
+  -   Kurulduktan sonra projenin bulunduğu dizinde terminali açın.
+  -   `requirements.txt` dosyasındaki kütüphaneleri kurmak için `pip install .\requirements.txt` komutunu yazın.
+
+- ### Projeyi Derleyin
+  -   Proje klasörünü terminal ile açın.
+  -   Projedeki `Makefile` dosyasında yazan komutları yerine getirmek için `mingw32-make` yazın.
+  -   Başarılı bir derleme işlemi gerçekleşirse `Build process is completed.` yazısı çıkacak.
+  -   Derleme işlemi başarılı olduğunda yine aynı dosya yolunda `python main.py` yazarak projeyi çalıştırabilirsiniz.
+           
