@@ -34,10 +34,13 @@ For Windows only
 
 ---
 
-### DOWNLOAD
+### **DOWNLOAD** Desktop
 -   Releases
       -   Pre-release
           - ⬇️ **[v0.0.7.5](https://github.com/Helmssyss/SyncMagnet/releases/download/v0.0.7.5-alpha/Sync_Magnet_v0.0.7.5.zip)** - 16.12.2023
+
+### **DOWNLOAD** Mobile
+-   Coming Soon to Google Play.
 
 # EN
 ## How to Run Project? (Only _Windows_)
