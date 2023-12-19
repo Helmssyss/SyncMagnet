@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef __SYNCMAGNET_H
+#define __SYNCMAGNET_H
+
 #include <WinSock2.h>
 #include <ws2tcpip.h>
 
@@ -7,32 +10,21 @@
 #include <vector>
 #include <iostream>
 
-#ifndef __SYNCPUBLIC
-#   define __SYNCPUBLIC              extern "C" __declspec(dllexport)
-#endif
-
-#ifndef __SYNCPRIVATE
-#   define __SYNCPRIVATE
-#endif
-
-#ifndef __SYNCMAGNET_H
-#   define __SYNCMAGNET_H
-#endif
-
-#ifdef __SYNCMAGNET_H
-#   define SINGLE                  "SINGLE"
-#   define DECLINE                 "DECLINE"
-#   define DISCONNECT              "DISCONNECT"
-#   define DEVICE                  "DEVICE"
-#   define NEXT                    "NEXT"
-#   define OK_SEND                 "OK_SEND"
-#   define S_FILE_CAME             "S_FILE_CAME"
-#   define S_FILE_SEND             "S_FILE_SEND"
-#   define FILE_SEND_END           "FILE_SEND_END"
-#   define C_MULTIPLE_FILE_SEND    "C_MULTIPLE_FILE_SEND"
-#   define C_FILE_SEND             "C_FILE_SEND"
-#   define FILE_CHUNK_SIZE         4096
-#endif
+#define __SYNCPUBLIC              extern "C" __declspec(dllexport)
+#define __SYNCPRIVATE
+#define SINGLE                  "SINGLE"
+#define DECLINE                 "DECLINE"
+#define DISCONNECT              "DISCONNECT"
+#define DEVICE                  "DEVICE"
+#define NEXT                    "NEXT"
+#define OK_SEND                 "OK_SEND"
+#define S_FILE_CAME             "S_FILE_CAME"
+#define S_FILE_SEND             "S_FILE_SEND"
+#define FILE_SEND_END           "FILE_SEND_END"
+#define C_MULTIPLE_FILE_SEND    "C_MULTIPLE_FILE_SEND"
+#define C_FILE_SEND             "C_FILE_SEND"
+#define H_TRANSFER              "H_TRANSFER"
+#define FILE_CHUNK_SIZE         4096
 
 using namespace std;
 
@@ -81,3 +73,5 @@ __SYNCPUBLIC inline bool GetSendFinishedState() { return sendFinished; }
 __SYNCPUBLIC inline bool GetIsLoadFile() { return isLoadFile; }
 __SYNCPUBLIC inline bool GetIsDownloadCompletedFile() { return isDownloadCompleted; }
 __SYNCPUBLIC inline bool CanGetDeviceState() { return isCanGetDeviceState; }
+
+#endif

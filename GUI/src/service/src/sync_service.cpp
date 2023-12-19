@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <algorithm>
+#include <cstdint>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -327,8 +328,8 @@ __SYNCPUBLIC void HandleFileTransfer(){
     try{
         std::cout << "isTransfer -> " << isTransfer << std::endl;
         if (isTransfer){
-            send(ClientSocket, "H_TRANSFER", strlen("H_TRANSFER"), 0);
-            std::cout << "H_TRANSFER" << std::endl;
+            send(ClientSocket, H_TRANSFER, strlen(H_TRANSFER), 0);
+            std::cout << H_TRANSFER << std::endl;
             isTransfer = false;
         }
         isCanGetDeviceState = false;

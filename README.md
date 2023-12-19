@@ -51,8 +51,6 @@ For Windows only
    -   After following the necessary steps, install the following libraries
          -   https://packages.msys2.org/package/mingw-w64-x86_64-pugixml?repo=mingw64
               -  `pacman -S mingw-w64-x86_64-pugixml`
-         -   https://packages.msys2.org/package/mingw-w64-x86_64-curl
-              -   `pacman -S mingw-w64-x86_64-curl`
 
 - ### (ONLY FOR GUI) Install Python Interpreter (_Version 3.9.13_)
   -   For the Python interpreter, go to https://www.python.org/downloads/release/python-3913/
@@ -72,8 +70,6 @@ For Windows only
    -   Gerekli adımları uyguladıktan sonra aşağıdaki kütüphaneleri kurun
          -   https://packages.msys2.org/package/mingw-w64-x86_64-pugixml?repo=mingw64
               -  `pacman -S mingw-w64-x86_64-pugixml`
-         -   https://packages.msys2.org/package/mingw-w64-x86_64-curl
-              -   `pacman -S mingw-w64-x86_64-curl`
 
 - ### (SADECE GUI İÇİN) Python Yorumlayıcısını Yükleyin (_Version 3.9.13_)
   -   Python yorumlayıcısı için şu adrese gidin https://www.python.org/downloads/release/python-3913/
