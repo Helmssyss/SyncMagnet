@@ -1,3 +1,8 @@
+## (Desktop) v0.0.7.7 - 24.12.2023
+### Bug Fix
+ - When the connection was closed from mobile. has been resolved.
+
+---
 ## (Android | Desktop) v0.0.7.5 - 16.12.2023
 ### Bug Fix
  - The error that occurred when sending a single file from mobile to desktop has been resolved.
