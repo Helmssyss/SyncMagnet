@@ -37,6 +37,7 @@ For Windows only
 ### **DOWNLOAD** Desktop
 -   Releases
       -   Pre-release
+          - ⬇️ **[(GUI SETUP) - v0.0.7.7](https://github.com/Helmssyss/SyncMagnet/releases/download/v0.0.7.7-alpha/GUI.-SyncMagnetSetup.exe)** - 24.12.2023
           - ⬇️ **[(GUI PORTABLE) - v0.0.7.5](https://github.com/Helmssyss/SyncMagnet/releases/download/v0.0.7.5-alpha/GUI-PORTABLE-.Sync_Magnet_v0.0.7.5.zip)** - 16.12.2023
           - ⬇️ **[(GUI SETUP) - v0.0.7.5](https://github.com/Helmssyss/SyncMagnet/releases/download/v0.0.7.5-alpha/GUI-Sync_Magnet_Setup.exe)** - 16.12.2023
           - ⬇️ **[(CLI) - v0.0.7.5](https://github.com/Helmssyss/SyncMagnet/releases/download/v0.0.7.5-alpha/CLI.-.Sync_Magnet_v0.0.7.5.exe)** - 16.12.2023
