@@ -12,6 +12,7 @@ from src.funcs.sync_workers     import SyncFileSenderWorker
 from src.funcs.sync_workers     import SyncProcessRunWorker
 from src.funcs.sync_workers     import SyncFileDownloadWorker
 from src.funcs.sync_workers     import SyncLoadFileListener
+from src.funcs.sync_workers     import SyncOnClientDisconnectWorker
 from src.pages.sync_load_page   import LoadWindow
 from src.widgets                import SyncListWidget
 from src.widgets                import SyncTableWidget
@@ -936,6 +937,19 @@ class ServerWindow(QMainWindow):
         self.getInfoWorker.connectGetClientInfo.connect(self.getClientInfo)
         self.frame_top_btns.mouseDoubleClickEvent = self.doubleClickMaximizeRestore
 
+        self.getOnClientDisconnectWorker = SyncOnClientDisconnectWorker()
+        self.getOnClientDisconnectThread = QThread(self)
+        self.getOnClientDisconnectWorker.moveToThread(self.getOnClientDisconnectThread)
+        self.getOnClientDisconnectThread.started.connect(self.getOnClientDisconnectWorker.disconnectListen)
+        self.getOnClientDisconnectThread.start()
+        self.getOnClientDisconnectWorker.onDisconnect.connect(self.onClientDisconnect)
+
+    @pyqtSlot(bool)
+    def onClientDisconnect(self,state:bool):
+        if state:
+            print("closed to mobile")
+            self.closeApplication()
+
     @pyqtSlot(bool)
     def onAppIsBackground(self, isBackground: bool):
         if isBackground:
@@ -960,6 +974,9 @@ class ServerWindow(QMainWindow):
         self.getInfoWorker.setRunState(False)
         self.getInfoThread.quit()
         self.getInfoThread.wait()
+        self.getOnClientDisconnectWorker.setRunState(False)
+        self.getOnClientDisconnectThread.quit()
+        self.getOnClientDisconnectThread.wait()
         if getattr(self,"downloadFileWorker",None):
             self.downloadFileWorker.setRunState(False)
             self.downloadFileThread.quit()

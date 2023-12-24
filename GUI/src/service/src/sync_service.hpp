@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 
-#define __SYNCPUBLIC              extern "C" __declspec(dllexport)
+#define __SYNCPUBLIC            extern "C" __declspec(dllexport)
 #define __SYNCPRIVATE
 #define SINGLE                  "SINGLE"
 #define DECLINE                 "DECLINE"
@@ -73,5 +73,6 @@ __SYNCPUBLIC inline bool GetSendFinishedState() { return sendFinished; }
 __SYNCPUBLIC inline bool GetIsLoadFile() { return isLoadFile; }
 __SYNCPUBLIC inline bool GetIsDownloadCompletedFile() { return isDownloadCompleted; }
 __SYNCPUBLIC inline bool CanGetDeviceState() { return isCanGetDeviceState; }
+__SYNCPUBLIC inline bool GetonDisconnectDevice() { return onDisconnect; }
 
 #endif

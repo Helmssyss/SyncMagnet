@@ -12,7 +12,7 @@ class SyncMagnetDllService():
         self.__magnetDll:ctypes.CDLL = None
 
     def LoadMagnetDll(self) -> bool:
-        """ Dll dosyasının varlığını kontrol et """
+        """ Check for exist of dll file"""
 
         if os.path.exists(self._dllPath):
             return True
@@ -20,7 +20,7 @@ class SyncMagnetDllService():
             return False
 
     def ManageDllStarted(self):
-        """ Server'i Başlat """
+        """ Start to server"""
         try:
             self.__magnetDll = ctypes.CDLL(name=self._dllPath)
         except FileNotFoundError:
@@ -30,10 +30,11 @@ class SyncMagnetDllService():
             self.__magnetDll.StartServer()
 
     def ManageDllFinished(self):
+        "Stop to server"
         self.__magnetDll.CloseServer()
     
     def SelectSendDllFilePath(self, sendListWidget: SyncListWidget):
-        """ DOSYALARI GÖNDER """
+        """ Files send """
         
         file_info_list = []
         for i in range(sendListWidget.count()):
@@ -56,18 +57,17 @@ class SyncMagnetDllService():
         return cls.__magnetDll.HandleFileTransfer()
     
     def GetCurrentDownloadFileSize(self) -> int:
-        """ şuan indirilen dosyanin boyutu (byte)"""
+        """ Size of the currently downloaded file (bytes)"""
 
         return self.__magnetDll.GetCurrentDownloadFileSize()
     
     def GetCurrentTotalDownloadFileSize(self) -> int:
-        """ şuan indirilecek dosyanin toplam boyutu (byte)"""
+        """ Total size the file to will download now (byte)"""
 
         return self.__magnetDll.GetCurrentTotalDownloadFileSize()
 
     def GetIsLoadFile(self):
-        """ şuan dosya indiriliyorsa True indirilmiyorsa False """
-
+        """ True if the file is downloading now, if not downloading file is False"""
         return self.__magnetDll.GetIsLoadFile()
 
     def GetIsDownloadCompletedFile(self) -> bool:
@@ -75,7 +75,7 @@ class SyncMagnetDllService():
         return self.__magnetDll.GetIsDownloadCompletedFile()
 
     def CanGetDeviceState(self) -> bool:
-        """dosya gönderiliyor mu gönderiliyorsa True gönderilmiyorsa False"""
+        """is the file sending,True if file sending if not send file is false."""
         return self.__magnetDll.CanGetDeviceState()
 
     def GetDeviceBatteryStatus(self):
@@ -86,9 +86,13 @@ class SyncMagnetDllService():
 
     def SetTransferMode(self,mode: bool):
         self.__magnetDll.SetTransferMode(mode)
+    
+    def GetonDisconnectDevice(self) -> bool:
+        "Is connection closed?"
+        return self.__magnetDll.GetonDisconnectDevice()
 
     def formatSize(self,byte) -> str:
-        """ Dosya boyutu birim dönüşümü """
+        """ file size conversion"""
 
         if byte < 1024:
             return f"{byte} B"

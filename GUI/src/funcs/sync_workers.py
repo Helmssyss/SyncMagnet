@@ -45,7 +45,6 @@ class SyncClientInfoWorker(QObject):
                     device_battery = int(device.attrib["device_battery"])
                     self.connectGetClientInfo.emit({"device_name":device_name,"device_battery":device_battery})
                     __DLL_SERVICE__.GetDeviceBatteryStatus()
-
                 except Exception as E:
                     print("SyncClientInfoWorker ERROR: ",E)
                     pass
@@ -53,7 +52,6 @@ class SyncClientInfoWorker(QObject):
                 finally:
                     # print("SyncClientInfoWorker START")
                     sleep(0.6)
-            sleep(0.6)
 # ##### ===> SyncClientInfoWorker
 
 # ##### ===> SyncFileSenderWorker
@@ -190,3 +188,21 @@ class SyncCheckNetWorker(QObject):
             finally:
                 sleep(0.1)
 # #### ====> SyncCheckNetWorker
+
+# #### ====> SyncOnClientDisconnectWorker
+class SyncOnClientDisconnectWorker(QObject):
+    onDisconnect = pyqtSignal(bool)
+    def __init__(self) -> None:
+        super().__init__()
+        self.__run = True
+    
+    def setRunState(self,newRunState: bool):
+        self.__run = newRunState
+    
+    def disconnectListen(self):
+        while self.__run:
+            state = __DLL_SERVICE__.GetonDisconnectDevice()
+            print("GetonDisconnectDevice -> ",state)
+            self.onDisconnect.emit(state)
+            sleep(0.6)
+# #### ====> SyncOnClientDisconnectWorker

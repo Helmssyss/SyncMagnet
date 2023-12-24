@@ -159,6 +159,8 @@ __SYNCPRIVATE void GetClientDevice(char* buffer) {
         }
     }catch(const std::exception& e){
         std::cerr << "GetClientDevice -> " << e.what() << '\n';
+        onDisconnect = true;
+        
     }
 }
 
@@ -376,7 +378,13 @@ __SYNCPUBLIC void GetDeviceBatteryStatusPerSecond(){
 
 __SYNCPUBLIC void CloseServer() {
     Sleep(100);
-    if(!mobileAppDisconnect) send(ClientSocket, DISCONNECT, strlen(DISCONNECT), 0);
+    if(!mobileAppDisconnect){
+        send(ClientSocket, DISCONNECT, strlen(DISCONNECT), 0);
+        std::cout << "masaustunden kapandi" << std::endl;
+    }else{
+        std::cout << "mobilden kapandi" << std::endl;
+    }
+        
     closesocket(ClientSocket);
     closesocket(ServerSocket);
     WSACleanup();
@@ -385,3 +393,4 @@ __SYNCPUBLIC void CloseServer() {
     onDisconnect = true;
     exit(0);
 }
+
