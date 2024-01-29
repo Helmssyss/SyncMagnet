@@ -1,5 +1,7 @@
 <div align="center">
    
+   # :SyncMagnet:
+   
    ![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
    ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
    ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
@@ -8,13 +10,7 @@
    ![Qt](https://img.shields.io/badge/Qt-%23217346.svg?style=for-the-badge&logo=Qt&logoColor=white)
 </div>
 
-# SyncMagnet
-
-### This repo is still under development.
-
-For Windows only
-
-## ANDROID
+## 📱 :ANDROID:
 <div align = "center">
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/2291d11d-ff3e-4615-8ad0-a635f8534a81" width=30% height=30%>
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/cea5c156-7cdc-45e3-ab72-d8de38fd2e6c" width=30% height=30%>
@@ -31,7 +27,7 @@ For Windows only
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/401539da-270f-4973-ab83-bbe938458234" width=30% height=30%>
 </div>
 
-## DESKTOP
+## 💻 :DESKTOP:
 <div align = "center">
 
    <img src="https://github.com/Helmssyss/SyncMagnet/assets/84701901/d3241bfc-a869-4abd-b01e-02f9b489cd43" width=45% height=45%>
