@@ -1,0 +1,56 @@
+name: sync_magnet
+description: About File sharing application between Android Phone and Windows PC.
+publish_to: 'none'
+version: 0.0.7
+
+environment:
+  sdk: '>=2.19.2 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  image_picker: ^1.0.4
+  path_provider: ^2.1.1
+  file_manager: ^1.0.2
+  photo_view: ^0.14.0
+  syncfusion_flutter_pdfviewer: ^20.3.47
+  
+  permission_handler: ^10.4.2
+  file_picker: ^5.3.1
+  video_player: ^2.7.2
+  chewie: ^1.7.1
+  url_launcher: ^6.0.17
+  google_fonts: ^4.0.3
+  shared_preferences: ^2.2.1
+  provider: ^6.0.5
+  google_mobile_ads: ^3.0.0
+  flutter_markdown: ^0.6.18
+  http: ^0.13.5
+  html: ^0.15.2
+  device_info_plus: ^9.0.3
+  battery_plus: ^4.0.2
+  just_audio: ^0.9.36
+  device_apps: ^2.2.0
+  share_plus: ^7.2.1
+  percent_indicator: ^4.2.3
+  archive: ^3.4.9
+  easy_localization: ^3.0.3
+  introduction_screen: ^3.1.12
+  flutter_local_notifications: ^13.0.0
+  flutter_background_service: ^2.4.6
+  flutter_background_service_android: ^3.0.3
+  # flutter_install_app: ^1.3.0
+  audio_service: ^0.18.12
+  connectivity_plus: ^5.0.2
+  # saf: ^1.0.3+4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/translations/
